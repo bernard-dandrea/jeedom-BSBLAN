@@ -70,7 +70,7 @@ Les boutons suivants sont disponibles :
 
 # Analyse des champs de la commande
 
-Pour chaque commande relative à un datapoint, on trouve en plus des champs habituels de jeedom :
+Pour chaque commande relative à un paramètre, on trouve en plus des champs habituels de jeedom :
 
 - le LogicalID: 
   - pour les commandes de type info, égal au code du paramètre
