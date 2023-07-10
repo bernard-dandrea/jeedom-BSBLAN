@@ -56,7 +56,7 @@ Les boutons suivants permettent les fonctions suivantes:
 
 # Commandes associées aux équipements
 
-![BSBLAN_Commande](../images/BSBLAN_Commande.png)
+![BSBLAN_Commandes](../images/BSBLAN_Commandes.png)
 
 Par défaut, une commande de type info est créée :
 
