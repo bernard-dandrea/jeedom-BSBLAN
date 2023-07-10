@@ -52,7 +52,7 @@ Il est possible d'associer une icone spécifique au BSBLAN. On peut également p
 Les boutons suivants permettent les fonctions suivantes:
 
 -   **Accéder à l'BSBLAN** : permet d'ouvrir une session WEB sur le BSBLAN
--   **Tester la connexion au BSBLAN** :  permet de tester si les paramètres de connexion sont corrects (penser à sauvegarder la configuration avant de cliquer sur le bouton.
+-   **Tester la connexion au BSBLAN** :  permet de tester si les paramètres de connexion sont corrects (penser à sauvegarder la configuration avant de cliquer sur le bouton).
 
 # Commandes associées aux équipements
 
