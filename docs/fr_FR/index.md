@@ -83,4 +83,4 @@ Pour chaque commande relative à un paramètre, on trouve en plus des champs hab
 
 ![BSBLAN_Widget](../images/BSBLAN_Widget.png)
 
-Voici un exemple de widget. On peut modifier le nom des commandes pour être plus parlant. 
+Voici un exemple de widget. On peut modifier le nom des commandes pour que ce soit plus parlant. 
