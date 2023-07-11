@@ -13,7 +13,7 @@ La communication entre le plugin et le BSBLAN s'effectue via des WEB APIs.
 
 # Installation et configuration du controleur BSBLAN
 
-Le bon fonctionnement du plugin suppose que le module BSB-LAN est opérationnel. 
+Le bon fonctionnement du plugin suppose que le module BSB-LAN soit opérationnel. 
 
 Pour l'installation et la configuration, se repporter à l'excellente documentation disponible sur le site du projet ou en PDF.
 
