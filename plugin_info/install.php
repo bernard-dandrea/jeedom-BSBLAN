@@ -19,7 +19,7 @@ require_once dirname(__FILE__) . '/../../../core/php/core.inc.php';
 
 // Fonction exécutée automatiquement après l'installation du plugin
 
-function BSB-LAN_install()
+function BSBLAN_install()
 {
 
 }
@@ -27,7 +27,7 @@ function BSB-LAN_install()
 // Fonction exécutée automatiquement après la mise à jour du plugin
 
 
-function BSB-LAN_update()
+function BSBLAN_update()
 {
 
     foreach (eqLogic::byType('BSB-LAN') as $eqLogic) {
@@ -36,13 +36,13 @@ function BSB-LAN_update()
 }
 
 
-function BSB-LAN_pre_update()
+function BSBLAN_pre_update()
 {
 
 }
 
 // Fonction exécutée automatiquement après la suppression du plugin
 
-function BSB-LAN_remove()
+function BSBLAN_remove()
 {
 }
