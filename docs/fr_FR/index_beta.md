@@ -17,7 +17,7 @@ Le bon fonctionnement du plugin suppose que le module BSB-LAN soit opérationnel
 
 Pour l'installation et la configuration, se repporter à l'excellente documentation disponible sur le site du projet ou en PDF.
 
-Si on souhaite modifier des paramètres, il faudra l'autoriser dans la confiuration du BSBLAN.
+Si on souhaite modifier des paramètres, il faudra l'autoriser dans la configuration du BSBLAN.
 
 Le plugin a été testé avec une version 3.2. A priori, le plugin devrait fonctionner avec des versions antérieures car les appels aux APIs sont assez basiques et doivent exister depuis de nombreuses versions.
 
@@ -44,19 +44,19 @@ Indiquer la configuration de l'BSBLAN :
 -   **Visible** : le rend visible sur le dashboard
 -   **Adresse IP** : IP de l’équipement
 -   **Compte et mot de passe** : codes d'accès au WEB server
--   **Passkey** : prefixe à fournir au requêtes html
+-   **Passkey** : prefixe à fournir au requêtes html (voir documentation BSBLAN)
 -   **Icone** : permet de sélectionner un type d'icône pour l'équipement dans le paneau de configuration
 
 Il est possible d'associer une icone spécifique au BSBLAN. On peut également personaliser une icone de type perso en ajoutant l'image correspondante (par exemple perso1.png pour l'icone perso1) dans le répertoire plugin_info du plugin.
 
 Les boutons suivants permettent les fonctions suivantes:
 
--   **Accéder à l'BSBLAN** : permet d'ouvrir une session WEB sur le BSBLAN
--   **Tester la connexion au BSBLAN** :  permet de tester si les paramètres de connexion sont corrects (penser à sauvegarder la configuration avant de cliquer sur le bouton.
+-   **Accéder au BSBLAN** : permet d'ouvrir une session WEB sur le BSBLAN
+-   **Tester la connexion au BSBLAN** :  permet de tester si les paramètres de connexion sont corrects (penser à sauvegarder la configuration avant de cliquer sur le bouton).
 
 # Commandes associées aux équipements
 
-![BSBLAN_Commande](../images/BSBLAN_Commande.png)
+![BSBLAN_Commandes](../images/BSBLAN_Commandes.png)
 
 Par défaut, une commande de type info est créée :
 
@@ -70,7 +70,7 @@ Les boutons suivants sont disponibles :
 
 # Analyse des champs de la commande
 
-Pour chaque commande relative à un datapoint, on trouve en plus des champs habituels de jeedom :
+Pour chaque commande relative à un paramètre, on trouve en plus des champs habituels de jeedom :
 
 - le LogicalID: 
   - pour les commandes de type info, égal au code du paramètre
@@ -83,4 +83,4 @@ Pour chaque commande relative à un datapoint, on trouve en plus des champs habi
 
 ![BSBLAN_Widget](../images/BSBLAN_Widget.png)
 
-Voici un exemple de widget. On peut modifier le nom des commandes pour être plus parlant. 
+Voici un exemple de widget. On peut modifier le nom des commandes pour que ce soit plus parlant. 
