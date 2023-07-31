@@ -2,7 +2,7 @@
 
 Plugin permettant de s'interfacer avec le controleur BSB-LPB-LAN. 
 
-Le contoleur BSB-LPB-LAN est issu d'un projet dont le but est la communication avec les cartes SIEMENS pilotant de nombreuses chaudières, pompes à chaleur et autres dispositifs industriels. 
+Le controleur BSB-LPB-LAN est issu d'un projet dont le but est la communication avec les cartes SIEMENS pilotant de nombreuses chaudières, pompes à chaleur et autres dispositifs industriels. 
 
 La documentation est très complète et se trouve à cette adresse https://github.com/1coderookie/BSB-LPB-LAN_EN . Le matériel peut être acquis auprès de Frederik Holst <bsb@code-it.de> .
 
@@ -15,7 +15,7 @@ La communication entre le plugin et le BSBLAN s'effectue via des WEB APIs.
 
 Le bon fonctionnement du plugin suppose que le module BSB-LAN soit opérationnel. 
 
-Pour l'installation et la configuration, se repporter à l'excellente documentation disponible sur le site du projet ou en PDF.
+Pour l'installation et la configuration, se reporter à l'excellente documentation disponible sur le site du projet ou en PDF.
 
 Si on souhaite modifier des paramètres, il faudra l'autoriser dans la configuration du BSBLAN.
 
@@ -35,7 +35,7 @@ Cliquer sur Ajouter pour définir le controleur BSBLAN.
 
 ![BSBLAN_Equipement](../images/BSBLAN_Equipement.png)
 
-Indiquer la configuration de l'BSBLAN :
+Indiquer la configuration du BSBLAN :
 
 -   **Nom** : nom du BSBLAN
 -   **Objet parent** : indique l’objet parent auquel appartient l’équipement
