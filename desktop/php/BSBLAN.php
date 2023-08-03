@@ -178,6 +178,13 @@ $eqLogics = eqLogic::byType($plugin->getId());
                     <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="passkey"">
                 </div>
               </div>               
+               
+                <div class="form-group ">
+                  <label class="col-sm-4 control-label">{{Timeout en sec}}</label>
+                  <div class="col-sm-6">
+                    <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="timeout"">
+                </div>
+              </div>               
                                 
               <div class=" form-group">
                     <label class="col-sm-4 control-label">{{Icône}}</label>

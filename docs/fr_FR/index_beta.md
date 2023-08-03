@@ -6,7 +6,7 @@ Le controleur BSB-LPB-LAN est issu d'un projet dont le but est la communication 
 
 La documentation est très complète et se trouve à cette adresse https://github.com/1coderookie/BSB-LPB-LAN_EN . Le matériel peut être acquis auprès de Frederik Holst <bsb@code-it.de> .
 
-Le BSB-LAN peut remplacer avantageusement les controleurs OZW fournis par Siemens. La solution est beaucoup moins onéreuse, permet l'accès à tous les paramètres des cartes Siemens (contrairement à l'OZW) et les temps d'accès au cartes sont beaucoup plus rapides. Par ailleurs, il est possible d'envoyer la température des zones chauffées sans avoir besoin de passer par une sonde d'ambiance.
+Le BSB-LAN peut remplacer avantageusement les controleurs OZW fournis par Siemens. La solution est beaucoup moins onéreuse, permet l'accès à tous les paramètres des cartes Siemens (contrairement à l'OZW) et les temps d'accès aux cartes sont beaucoup plus rapides. Par ailleurs, il est possible d'envoyer la température des zones chauffées sans avoir besoin de passer par une sonde d'ambiance.
 
 La communication entre le plugin et le BSBLAN s'effectue via des WEB APIs.
 
@@ -45,6 +45,7 @@ Indiquer la configuration du BSBLAN :
 -   **Adresse IP** : IP de l’équipement
 -   **Compte et mot de passe** : codes d'accès au WEB server
 -   **Passkey** : prefixe à fournir au requêtes html (voir documentation BSBLAN)
+-   **Timeout** : durée maxi pendant laquelle on attend une réponse à la requete http (5 secondes si le champ est vide)
 -   **Icone** : permet de sélectionner un type d'icône pour l'équipement dans le paneau de configuration
 
 Il est possible d'associer une icone spécifique au BSBLAN. On peut également personaliser une icone de type perso en ajoutant l'image correspondante (par exemple perso1.png pour l'icone perso1) dans le répertoire plugin_info du plugin.

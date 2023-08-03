@@ -51,8 +51,13 @@ class BSBLAN extends eqLogic
 
             curl_setopt($ch, CURLOPT_HEADER, false);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+
+            $timeout = $this->getConfiguration('timeout', '15');
+            if (is_numeric($timeout)) {
+                curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+                curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+            }
+
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
             curl_setopt($ch, CURLOPT_MAXREDIRS, 1);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
@@ -72,12 +77,14 @@ class BSBLAN extends eqLogic
 
                     log::add('BSBLAN', 'debug', 'Connexion OK : version de BSB-LAN ' . $obj['version']);
 
-                    event::add('jeedom::alert', array(
-                        'level' => 'success',
-                        'page' => 'BSBLAN',
-                        'message' => __('Connexion OK : version de BSB-LAN ' . $obj['version'], __FILE__),
-                    )
-                    ); 
+                    event::add(
+                        'jeedom::alert',
+                        array(
+                            'level' => 'success',
+                            'page' => 'BSBLAN',
+                            'message' => __('Connexion OK : version de BSB-LAN ' . $obj['version'], __FILE__),
+                        )
+                    );
                 } else {
 
                     log::add('BSBLAN', 'debug', 'Connexion KO : pas un BSBLAN');
@@ -93,17 +100,29 @@ class BSBLAN extends eqLogic
                 }
             } else {
 
-                log::add('BSBLAN', 'debug', 'curl_exec http error ' . $http_code);
-                event::add(
-                    'jeedom::alert',
-                    array(
-                        'level' => 'error',
-                        'page' => 'BSBLAN',
-                        'message' => __('Connexion KO : erreur http ' . $http_code . ' response --> ' . strip_tags($response), __FILE__),
-                    )
-                );
+                if ($http_code == intval(0)) {
+                    log::add('BSBLAN', 'debug', 'No answer from ' . $this->getConfiguration('ip'));
+                    event::add(
+                        'jeedom::alert',
+                        array(
+                            'level' => 'error',
+                            'page' => 'BSBLAN',
+                            'message' => __('Connexion KO : erreur http ' . $http_code . ' No answer from ' . $this->getConfiguration('ip'), __FILE__),
+                        )
+                    );
+                } else {
+                    log::add('BSBLAN', 'debug', 'curl_exec http error ' . $http_code);
+                    event::add(
+                        'jeedom::alert',
+                        array(
+                            'level' => 'error',
+                            'page' => 'BSBLAN',
+                            'message' => __('Connexion KO : erreur http ' . $http_code . ' response --> ' . strip_tags($response), __FILE__),
+                        )
+                    );
+                }
             }
-            
+
 
         } catch (\Throwable $th) {
             throw $th;
@@ -140,8 +159,13 @@ class BSBLAN extends eqLogic
 
             curl_setopt($ch, CURLOPT_HEADER, false);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+
+            $timeout = $this->getConfiguration('timeout', '15');
+            if (is_numeric($timeout)) {
+                curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+                curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+            }
+
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
             curl_setopt($ch, CURLOPT_MAXREDIRS, 1);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
@@ -166,10 +190,15 @@ class BSBLAN extends eqLogic
 
             $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             if ($http_code == intval(200)) {
-                log::add('BSBLAN', 'debug', 'curl_exec response : $http_code ' . $http_code . ' response --> ' . strip_tags($response));
+                log::add('BSBLAN', 'debug', 'curl_exec response : http_code ' . $http_code . ' response --> ' . strip_tags($response));
             } else {
-                log::add('BSBLAN', 'debug', 'curl_exec http error ' . $http_code);
-                throw new \Exception(__('BSBLAN http error : ', __FILE__) . $http_code . ' response --> ' . strip_tags($response));
+                if ($http_code == intval(0)) {
+                    log::add('BSBLAN', 'debug', 'No answer from ' . $this->getConfiguration('ip'));
+                    throw new \Exception(__('BSBLAN http error : ', __FILE__) . 'No answer from ' . $this->getConfiguration('ip'));
+                } else {
+                    log::add('BSBLAN', 'debug', 'curl_exec http error ' . $http_code);
+                    throw new \Exception(__('BSBLAN http error : ', __FILE__) . $http_code . ' response --> ' . strip_tags($response));
+                }
             }
 
         } catch (\Throwable $th) {
@@ -345,7 +374,7 @@ class BSBLAN extends eqLogic
                 $name = $item_id;
             }
 
-            $name = trim(substr($name, 0, 37)) . ' Refresh';
+            $name = $name . ' Refresh';
 
             log::add('BSBLAN', 'info', __('create_refresh_command ', __FILE__) . $this->name . '  création commande ' . $name);
 
@@ -400,7 +429,7 @@ class BSBLAN extends eqLogic
                 $name = $item_id;
             }
 
-            $name = trim(substr($name, 0, 37)) . ' Action';
+            $name = $name . ' Action';
 
             log::add('BSBLAN', 'info', __('create_action_command ', __FILE__) . $this->name . '  création commande ' . $name);
 
