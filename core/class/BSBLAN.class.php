@@ -212,7 +212,7 @@ class BSBLAN extends eqLogic
 
     function BSBLAN_api($_api, $json_data = '')
     {
-        log::add('BSBLAN', 'debug', 'Execute BSBLAN_api ' . $_ip . ' url ' . $_api . ' json ' . $json_data);
+        log::add('BSBLAN', 'debug', 'Execute BSBLAN_api  url ' . $_api . ' json ' . $json_data);
 
         $statuscmd = $this->getCmd(null, 'status');
 
