@@ -1,4 +1,4 @@
-# Plugin BSBLAN
+ # Plugin BSBLAN
 
 Plugin permettant de s'interfacer avec le controleur BSB-LPB-LAN. 
 
@@ -59,9 +59,10 @@ Les boutons suivants permettent les fonctions suivantes:
 
 ![BSBLAN_Commandes](../images/BSBLAN_Commandes.png)
 
-Par défaut, une commande de type info est créée :
+Par défaut, deux commandes sont créées :
 
-- Dernier Refresh : indique quand la dernière information du BSBLAN a été mise à jour
+- Dernier Refresh : commande info indiquant quand la dernière information du BSBLAN a été mise à jour
+- Refresh: commande action permettant de mettre à jour tous les paramètres pour lesquels l'update est activé
 
 Les boutons suivants sont disponibles :
 

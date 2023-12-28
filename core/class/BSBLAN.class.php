@@ -96,7 +96,6 @@ class BSBLAN extends eqLogic
                             'message' => __('Connexion KO : pas un BSBLAN', __FILE__),
                         )
                     );
-
                 }
             } else {
 
@@ -122,15 +121,11 @@ class BSBLAN extends eqLogic
                     );
                 }
             }
-
-
         } catch (\Throwable $th) {
             throw $th;
         } finally {
             curl_close($ch);
         }
-
-
     }
 
 
@@ -200,14 +195,12 @@ class BSBLAN extends eqLogic
                     throw new \Exception(__('BSBLAN http error : ', __FILE__) . $http_code . ' response --> ' . strip_tags($response));
                 }
             }
-
         } catch (\Throwable $th) {
             throw $th;
         } finally {
             curl_close($ch);
         }
         return $response;
-
     }
 
     function BSBLAN_api($_api, $json_data = '')
@@ -349,9 +342,7 @@ class BSBLAN extends eqLogic
             }
 
             $cmd->save();
-
         } else {
-
         }
     }
 
@@ -526,7 +517,7 @@ class BSBLAN extends eqLogic
 
     public function postUpdate()
     {
-
+        unset($cmd);
         $cmd = $this->getCmd(null, 'updatetime');
         if (!is_object($cmd)) {
             $cmd = new BSBLANCmd();
@@ -540,6 +531,19 @@ class BSBLAN extends eqLogic
             $cmd->save();
         }
 
+        unset($cmd);
+        $cmd = $this->getCmd(null, 'Refresh');
+        if (!is_object($cmd)) {
+            $cmd = new BSBLANCmd();
+            $cmd->setName('Refresh');
+            $cmd->setEqLogic_id($this->getId());
+            $cmd->setType('action');
+            $cmd->setSubType('other');
+            $cmd->setLogicalId('refresh');
+            $cmd->setIsVisible(1);
+            $cmd->setDisplay('generic_type', 'GENERIC_INFO');
+            $cmd->save();
+        }
     }
 
 
@@ -591,21 +595,27 @@ class BSBLAN extends eqLogic
     {
         foreach (eqLogic::byTypeAndSearchConfiguration('BSBLAN', '"type":"BSBLAN"') as $eqLogic) {
             if ($eqLogic->getIsEnable()) {
-                log::add('BSBLAN', 'info', 'cron Refresh Info Appareil : ' . $eqLogic->name);
-                foreach ($eqLogic->getCmd() as $cmd) {
-                    if (is_numeric($cmd->getLogicalId()) && $cmd->getConfiguration('isCollected') == 1 && $cmd->getConfiguration('cron') == $_cron) {
-                        if ($eqLogic->refresh_info_cmd($cmd) == true) {
-                            $eqLogic_refresh_cmd = $eqLogic->getCmd(null, 'updatetime');
-                            $eqLogic_refresh_cmd->event(date("d/m/Y H:i", (time())));
-                        }
-                    }
+                BSBLAN::BSBLAN_Update($eqLogic, $_cron);
+            }
+        }
+    }
+
+    public function BSBLAN_Update($_eqLogic, $_cron)
+    {
+        log::add('BSBLAN', 'info', 'BSBLAN_Update Appareil : ' . $_eqLogic->getName() . ' cron ' . $_cron);
+        foreach ($_eqLogic->getCmd() as $cmd) {
+            if (is_numeric($cmd->getLogicalId()) && $cmd->getConfiguration('isCollected') == 1 && ($cmd->getConfiguration('cron') == $_cron || $_cron == 'refresh')) {
+                if ($_eqLogic->refresh_info_cmd($cmd) == true) {
+                    $_eqLogic_refresh_cmd = $_eqLogic->getCmd(null, 'updatetime');
+                    $_eqLogic_refresh_cmd->event(date("d/m/Y H:i", (time())));
                 }
             }
         }
     }
+
     function refresh_info_cmd($_cmd)
     {
-        log::add('BSBLAN', 'debug', 'Read datapoint ' . $_cmd->getLogicalId() . ' ' . $_cmd->getName());
+        log::add('BSBLAN', 'debug', 'Read parameter ' . $_cmd->getLogicalId() . ' ' . $_cmd->getName());
         $item_id = $_cmd->getLogicalId();
         $obj_detail = $this->BSBLAN_api('JQ=' . $item_id);
         if (isset($obj_detail["$item_id"]['name'])) {
@@ -629,10 +639,20 @@ class BSBLANCmd extends cmd
 
     public function execute($_options = null)
     {
+
+        // Refresh toutes les infos
         $eqLogic = $this->getEqLogic();
         if (!is_object($eqLogic) || $eqLogic->getIsEnable() != 1) {
             throw new \Exception(__('Equipement desactivé impossible d\éxecuter la commande : ' . $this->getHumanName(), __FILE__));
         }
+
+        // Refresh toutes les infos
+        if ($this->getLogicalId() == 'refresh') {
+            log::add('BSBLAN', 'info', __('execute ', __FILE__) . '  refresh');
+            BSBLAN::BSBLAN_Update($eqLogic, 'refresh');
+            return true;
+        }
+
 
         // Commande action
         if (substr($this->getLogicalId(), 0, 2) == 'A_') {
@@ -698,7 +718,7 @@ class BSBLANCmd extends cmd
         $eqLogic = $this->getEqLogic();
         if (is_object($eqLogic)) {
             if ($eqLogic->getConfiguration('type', '') == 'BSBLAN') {
-                if ($this->getLogicalId() == 'updatetime') {
+                if ($this->getLogicalId() == 'updatetime' || $this->getLogicalId() == 'refresh') {
                     return true;
                 }
             }
