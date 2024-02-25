@@ -6,6 +6,7 @@
 
 # 25/02/2024
 
+- Passage des noms de commande de 40 à 100 caracteres
 - Mise à jour documentation
 
 # 28/12/2023
