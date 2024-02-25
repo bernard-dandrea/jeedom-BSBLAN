@@ -86,3 +86,9 @@ Pour chaque commande relative à un paramètre, on trouve en plus des champs hab
 ![BSBLAN_Widget](../images/BSBLAN_Widget.png)
 
 Voici un exemple de widget. On peut modifier le nom des commandes pour que ce soit plus parlant. 
+
+# Avis
+
+![BSBLAN_avis](../images/BSBLAN_avis.png)
+
+Si vous appréciez ce plugin, merci de laisser une évaluation et un commentaire sur le Jeedom market, ça fait toujours plaisir: <https://jeedom.com/market/index.php?v=d&p=market_display&id=4424#>
