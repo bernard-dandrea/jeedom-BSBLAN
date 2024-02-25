@@ -264,11 +264,11 @@ class BSBLAN extends eqLogic
             // si oui, ajoute à la fin un numéro afin d'avoir un nom unique
             if (is_object(cmd::byEqLogicIdCmdName($this->id, $name))) {
                 $count = 1;
-                while (is_object(cmd::byEqLogicIdCmdName($this->id, substr($name, 0, 40) . "..." . $count))) {
+                while (is_object(cmd::byEqLogicIdCmdName($this->id, substr($name, 0, 100) . "..." . $count))) {
                     $count++;
                 }
-                $cmd->setName(substr($name, 0, 40) . "..." . $count);
-                log::add('BSBLAN', 'info', 'Rename as ' . substr($name, 0, 40) . "..." . $count);
+                $cmd->setName(substr($name, 0, 100) . "..." . $count);
+                log::add('BSBLAN', 'info', 'Rename as ' . substr($name, 0, 100) . "..." . $count);
             } else {
                 $cmd->setName($name);
             }
@@ -379,11 +379,11 @@ class BSBLAN extends eqLogic
             // si oui, ajoute à la fin un numéro afin d'avoir un nom unique
             if (is_object(cmd::byEqLogicIdCmdName($this->id, $name))) {
                 $count = 1;
-                while (is_object(cmd::byEqLogicIdCmdName($this->id, substr($name, 0, 40) . "..." . $count))) {
+                while (is_object(cmd::byEqLogicIdCmdName($this->id, substr($name, 0, 100) . "..." . $count))) {
                     $count++;
                 }
-                $cmd->setName(substr($name, 0, 40) . "..." . $count);
-                log::add('BSBLAN', 'info', 'Rename as ' . substr($name, 0, 40) . "..." . $count);
+                $cmd->setName(substr($name, 0, 100) . "..." . $count);
+                log::add('BSBLAN', 'info', 'Rename as ' . substr($name, 0, 100) . "..." . $count);
             } else {
                 $cmd->setName($name);
             }
@@ -434,11 +434,11 @@ class BSBLAN extends eqLogic
             // si oui, ajoute à la fin un numéro afin d'avoir un nom unique
             if (is_object(cmd::byEqLogicIdCmdName($this->id, $name))) {
                 $count = 1;
-                while (is_object(cmd::byEqLogicIdCmdName($this->id, substr($name, 0, 40) . "..." . $count))) {
+                while (is_object(cmd::byEqLogicIdCmdName($this->id, substr($name, 0, 100) . "..." . $count))) {
                     $count++;
                 }
-                $cmd->setName(substr($name, 0, 40) . "..." . $count);
-                log::add('BSBLAN', 'info', 'Rename as ' . substr($name, 0, 40) . "..." . $count);
+                $cmd->setName(substr($name, 0, 100) . "..." . $count);
+                log::add('BSBLAN', 'info', 'Rename as ' . substr($name, 0, 100) . "..." . $count);
             } else {
                 $cmd->setName($name);
             }
