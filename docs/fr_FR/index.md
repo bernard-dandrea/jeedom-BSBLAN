@@ -1,4 +1,4 @@
- # Plugin BSBLAN
+# Plugin BSBLAN
 
 Plugin permettant de s'interfacer avec le controleur BSB-LPB-LAN. 
 
