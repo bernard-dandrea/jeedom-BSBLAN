@@ -196,7 +196,7 @@ class BSBLAN extends eqLogic
                 if ($http_code == intval(200)) {
                     break;
                 }
-                log::add('BSBLAN', 'warning', 'curl_exec response : http_code ' . $http_code . ' response --> ' . strip_tags($response) . ' -> nouvel essai');
+                log::add('BSBLAN', 'warning', 'curl_exec response : http_code ' . $http_code . ' Curl error: ' . curl_error($ch) . ' -> nouvel essai');
                 $essai = $essai + 1;
             }
 
