@@ -181,15 +181,31 @@ class BSBLAN extends eqLogic
                     )
                 );
             }
-            $response = curl_exec($ch);
+            $retry = $this->getConfiguration('retry', '3');
+            if (is_numeric($retry) == false) {
+                $retry = 3;
+            } else {
+                if ($retry <= 0) {
+                    $retry = 1;
+                }
+            }
+            $essai = 0;
+            while ($essai < $retry) {
+                $response = curl_exec($ch);
+                $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                if ($http_code == intval(200)) {
+                    break;
+                }
+                log::add('BSBLAN', 'warning', 'curl_exec response : http_code ' . $http_code . ' response --> ' . strip_tags($response) . ' -> nouvel essai');
+                $essai = $essai + 1;
+            }
 
-            $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             if ($http_code == intval(200)) {
                 log::add('BSBLAN', 'debug', 'curl_exec response : http_code ' . $http_code . ' response --> ' . strip_tags($response));
             } else {
                 if ($http_code == intval(0)) {
                     log::add('BSBLAN', 'debug', 'No answer from ' . $this->getConfiguration('ip'));
-                    throw new \Exception(__('BSBLAN http error : ', __FILE__) . 'No answer from ' . $this->getConfiguration('ip'));
+                    throw new \Exception(__('BSBLAN http error : ', __FILE__) . 'No answer from ' . $this->getConfiguration('ip') . ' Curl error: ' . curl_error($ch));
                 } else {
                     log::add('BSBLAN', 'debug', 'curl_exec http error ' . $http_code);
                     throw new \Exception(__('BSBLAN http error : ', __FILE__) . $http_code . ' response --> ' . strip_tags($response));
