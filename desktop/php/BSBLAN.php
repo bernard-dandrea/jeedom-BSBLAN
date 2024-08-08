@@ -185,7 +185,12 @@ $eqLogics = eqLogic::byType($plugin->getId());
                     <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="timeout"">
                 </div>
               </div>               
-                                
+               <div class="form-group ">
+                  <label class="col-sm-4 control-label">{{Nombre essais}}</label>
+                  <div class="col-sm-6">
+                    <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="retry"">
+                </div>    
+              </div> 
               <div class=" form-group">
                     <label class="col-sm-4 control-label">{{Icône}}</label>
                     <div class="col-sm-6">
@@ -203,10 +208,6 @@ $eqLogics = eqLogic::byType($plugin->getId());
                       </select>
                     </div>
                   </div>
-
-
-
-
                 </div>
           </fieldset>
         </form>

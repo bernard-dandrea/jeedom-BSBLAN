@@ -4,6 +4,13 @@
 >
 >S'il n'y a pas d'information sur la mise à jour, c'est que celle-ci concerne uniquement de la mise à jour de documentation, de traduction ou de texte.
 
+
+# 06/08/2024
+
+- Possibilité de soumettre plusieurs fois une commande qui aurait échoué
+
+Suite au passage à Debian 11, j'ai constaté que j'obtenais des timeouts après avoir soumis des commandes au BSBLAN (cela ne se produisait pas en Debian 10 et je ne vois pas où chercher pour régler le problème au niveau OS). En soumettant la commande à nouveau, celle-ci passe en général sans problème. C'est pourquoi j'ai ajouté au niveau de chaque équipement une option 'Nombre d'essais' qui permettait soumettre la commande plusieurs fois.
+
 # 28/04/2024
 
 - Mise à jour mineure de la documentation
