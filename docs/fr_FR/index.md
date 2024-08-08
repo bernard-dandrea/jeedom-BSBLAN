@@ -46,6 +46,7 @@ Indiquer la configuration du BSBLAN :
 -   **Compte et mot de passe** : codes d'accès au WEB server
 -   **Passkey** : prefixe à fournir au requêtes html (voir documentation BSBLAN)
 -   **Timeout** : durée maxi pendant laquelle on attend une réponse à la requete http (15 secondes si le champ est vide)
+-   **Nombre essais** : nombre de fois où la commande est soumise en cas d'échec (égal 3 si le champ est vide)
 -   **Icone** : permet de sélectionner un type d'icône pour l'équipement dans le paneau de configuration
 
 Il est possible d'associer une icone spécifique au BSBLAN. On peut également personaliser une icone de type perso en ajoutant l'image correspondante (par exemple perso1.png pour l'icone perso1) dans le répertoire plugin_info du plugin.
