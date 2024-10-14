@@ -6,7 +6,7 @@
 
 # 14/10/2024
 
-- Passage des appels aux fonctions cron en static pour éviter les erreurs en PHP 8.
+- Passage des appels aux méthodes cron en static pour éviter les erreurs en DEBIAN 12 / PHP 8.
 
 # 06/08/2024
 
