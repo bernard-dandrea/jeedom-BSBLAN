@@ -4,7 +4,7 @@ Plugin permettant de s'interfacer avec le controleur BSB-LPB-LAN.
 
 Le controleur BSB-LPB-LAN est issu d'un projet dont le but est la communication avec les cartes SIEMENS pilotant de nombreuses chaudières, pompes à chaleur et autres dispositifs industriels. 
 
-La documentation est très complète et se trouve à cette adresse <https://github.com/1coderookie/BSB-LPB-LAN_EN> . Le matériel peut être acquis auprès de Frederik Holst <bsb@code-it.de> .
+La documentation est très complète et se trouve à cette adresse <https://docs.bsb-lan.de> . Le matériel peut être acquis auprès de Frederik Holst <bsb@code-it.de> .
 
 Le BSB-LAN peut remplacer avantageusement les controleurs OZW fournis par Siemens. La solution est beaucoup moins onéreuse, permet l'accès à tous les paramètres des cartes Siemens (contrairement à l'OZW) et les temps d'accès aux cartes sont beaucoup plus rapides. Par ailleurs, il est possible d'envoyer la température des zones chauffées sans avoir besoin de passer par une sonde d'ambiance.
 
@@ -20,6 +20,8 @@ Pour l'installation et la configuration, se reporter à l'excellente documentati
 Si on souhaite modifier des paramètres, il faudra l'autoriser dans la configuration du BSBLAN.
 
 Le plugin a été testé avec une version 3.2. A priori, le plugin devrait fonctionner avec des versions antérieures car les appels aux APIs sont assez basiques et doivent exister depuis de nombreuses versions.
+
+Le plugin n'a pas été testé avec la version 4 sortie en novembre 2024. A priori, il ne devrait pas y avoir de problème non plus pour les mêmes raisons que ci-dessus. 
 
 # Configuration du plugin
 
