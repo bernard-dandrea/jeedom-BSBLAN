@@ -166,6 +166,11 @@ class BSBLAN extends eqLogic
             }
             if ($json_data != '') {
                 curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+                             
+                // Modification pour mettre des antislash devant les quotes (nécessaire avec la version 4 de BSBLAN)
+                $json_data=str_replace('"','\"',$json_data);
+                log::add('BSBLAN', 'debug', __('https_file_get_contents ', __FILE__) . '  url ' . $url . ' json updated ' . $json_data);
+                
                 curl_setopt($ch, CURLOPT_POSTFIELDS, array("customer" => $json_data));
                 curl_setopt($ch, CURLOPT_HEADER, true);
                 curl_setopt(
