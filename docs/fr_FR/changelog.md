@@ -4,6 +4,10 @@
 >
 >S'il n'y a pas d'information sur la mise à jour, c'est que celle-ci concerne uniquement de la mise à jour de documentation, de traduction ou de texte.
 
+# 10/01/2025
+
+- Gestion des commandes de mise à jour via JSON ou url /S
+
 # 10/11/2024
 
 - Mise à jour de la documentation
