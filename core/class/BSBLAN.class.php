@@ -166,11 +166,6 @@ class BSBLAN extends eqLogic
             }
             if ($json_data != '') {
                 curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-                             
-                // Modification pour mettre des antislash devant les quotes (nécessaire avec la version 4 de BSBLAN)
-                $json_data=str_replace('"','\"',$json_data);
-                log::add('BSBLAN', 'debug', __('https_file_get_contents ', __FILE__) . '  url ' . $url . ' json updated ' . $json_data);
-                
                 curl_setopt($ch, CURLOPT_POSTFIELDS, array("customer" => $json_data));
                 curl_setopt($ch, CURLOPT_HEADER, true);
                 curl_setopt(
@@ -691,26 +686,41 @@ class BSBLANCmd extends cmd
                     die;
                     break;
             }
-            /*
+            $data_string = '';
+
+
+            $update_method = $this->getConfiguration('set_method', 'Defaut');
+            if ($update_method == 'Defaut') {
+                $update_method = $eqLogic->getConfiguration('set_method', '');
+            }
+
+            if ($update_method == 'Set') {
+                // /S<x>=<y> 	Set parameter <x> from controller at default destination address to value . 
+                // To set a parameter to --- (off/deactivated), just send an empty value: S<x>=
+                $url = 'S' . $internalid . '=' . $value;
+            } else {
+                /*
                         http://<ip-address>/JS  
                         Send: "Parameter", "Value", "Type" (0 = INF, 1 = SET)  
             */
-            $Type = '1';
-            if ($internalid >= 10000 and $internalid <= 10002) {
-                $Type = '0'; // type INF
+                $Type = '1';
+                if ($internalid >= 10000 and $internalid <= 10002) {
+                    $Type = '0'; // type INF
+                }
+
+                $data = array(
+                    "Parameter" => $internalid,
+                    "Value" => $value,
+                    "Type" => $Type
+                );
+
+                $data_string = json_encode($data);
+
+                $url = 'JS';
             }
-
-            $data = array(
-                "Parameter" => $internalid,
-                "Value" => $value,
-                "Type" => $Type
-            );
-
-            $data_string = json_encode($data);
-
-            $url = 'JS';
             log::add('BSBLAN', 'info', __('execute ', __FILE__) . '  url ' . $url . ' json ' . $data_string);
             $obj = $eqLogic->BSBLAN_api($url, $data_string);
+
 
             return true;
         }
