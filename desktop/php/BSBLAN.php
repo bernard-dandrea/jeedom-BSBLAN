@@ -192,6 +192,16 @@ $eqLogics = eqLogic::byType($plugin->getId());
                 </div>    
               </div> 
               <div class=" form-group">
+                    <label class="col-sm-4 control-label">{{Mises à jour}}</label>
+                    <div class="col-sm-6">
+                      <select id="Sel_Update" class="eqLogicAttr form-control" data-l1key="configuration"
+                        data-l2key="set_method">
+                        <option value="">{{via JSON (conseillé pour les versions 3 de BSBLAN)}}</option>
+                        <option value="Set">{{Via la commande /S}}</option>
+                      </select>
+                    </div>
+                  </div>
+              <div class=" form-group">
                     <label class="col-sm-4 control-label">{{Icône}}</label>
                     <div class="col-sm-6">
                       <select id="sel_icon" class="eqLogicAttr form-control" data-l1key="configuration"
@@ -208,6 +218,9 @@ $eqLogics = eqLogic::byType($plugin->getId());
                       </select>
                     </div>
                   </div>
+
+
+
                 </div>
           </fieldset>
         </form>
@@ -238,7 +251,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
                 <th>{{logicalID}}</th>
                 <th>{{Type}}</th>
                 <th style="min-width:260px;">{{Options}}</th>
-                <th>{{Scan}}</th>
+                <th>{{Scan / MAJ}}</th>
                 <th>{{Valeur}}
                 </th>
                 <th style="min-width:80px;width:200px;">{{Actions}}</th>
