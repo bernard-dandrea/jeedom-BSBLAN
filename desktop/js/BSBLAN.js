@@ -90,17 +90,29 @@ function addCmdToTable(_cmd) {
     tr += '</td>'
 
 
-        if (init(_cmd.type) == "info" && is_numeric(init(_cmd.logicalId))) {
+    if (init(_cmd.type) == "info" && is_numeric(init(_cmd.logicalId))) {
+        tr += '<td>';
+        tr += '<select id="sel_cron" class="cmdAttr form-control" data-l1key="configuration" data-l2key="cron"> '
+        tr += '<option value="none">{{Aucun}}</option> '
+        tr += '<option value="cron">{{Toutes les minutes}}</option> '
+        tr += '<option value="cron5">{{Toutes les 5 minutes}}</option> '
+        tr += '<option value="cron10">{{Toutes les 10 minutes}}</option> '
+        tr += '<option value="cron15">{{Toutes les 15 minutes}}</option> '
+        tr += '<option value="cron30">{{Toutes les 30 minutes}}</option> '
+        tr += '<option value="cronHourly">{{Toutes les heures}}</option> '
+        tr += '<option value="cronDaily">{{Toutes les jours}}</option> '
+        tr += '</select> '
+        tr += '</td>';
+    }
+    else {
+        var logicalId = init(_cmd.logicalId);
+
+        if (init(_cmd.type) == "action" && logicalId[0] == 'A') {
             tr += '<td>';
-            tr += '<select id="sel_cron" class="cmdAttr form-control" data-l1key="configuration" data-l2key="cron"> '
-            tr += '<option value="none">{{Aucun}}</option> '
-            tr += '<option value="cron">{{Toutes les minutes}}</option> '
-            tr += '<option value="cron5">{{Toutes les 5 minutes}}</option> '
-            tr += '<option value="cron10">{{Toutes les 10 minutes}}</option> '
-            tr += '<option value="cron15">{{Toutes les 15 minutes}}</option> '
-            tr += '<option value="cron30">{{Toutes les 30 minutes}}</option> '
-            tr += '<option value="cronHourly">{{Toutes les heures}}</option> '
-            tr += '<option value="cronDaily">{{Toutes les jours}}</option> '
+            tr += '<select id="sel_cron" class="cmdAttr form-control" data-l1key="configuration" data-l2key="set_method"> '
+            tr += '<option value="">{{Defaut}}</option> '
+            tr += '<option value="JSON">{{via JSON}}</option> '
+            tr += '<option value="Set">{{via /S}}</option> '
             tr += '</select> '
             tr += '</td>';
         }
@@ -108,7 +120,7 @@ function addCmdToTable(_cmd) {
             tr += '<td>';
             tr += '</td>';
         }
-
+    }
     tr += '<td>';
     tr += '<span class="cmdAttr" data-l1key="htmlstate"></span>';
     tr += '</td>';
@@ -144,7 +156,7 @@ function printEqLogic(_eqLogic) {
 $('#bt_gotoBSBLAN').on('click', function () {
     $('#md_modal').dialog({ title: "{{Accèder à l'interface du BSBLAN}}" });
     var url = 'http://' + $('.eqLogicAttr[data-l2key=ip]').value() + '/'
-    if ($('.eqLogicAttr[data-l2key=passkey]').value() != '' ) {
+    if ($('.eqLogicAttr[data-l2key=passkey]').value() != '') {
         url += $('.eqLogicAttr[data-l2key=passkey]').value() + '/'
     }
     window.open(url)
