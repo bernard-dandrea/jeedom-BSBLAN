@@ -15,7 +15,7 @@ La communication entre le plugin et le BSBLAN s'effectue via des WEB APIs.
 
 Le bon fonctionnement du plugin suppose que le module BSB-LAN soit opérationnel. 
 
-Pour l'installation et la configuration, se reporter à l'excellente documentation disponible sur le site du projet ou en PDF.
+Pour l'installation et la configuration, se reporter à l'excellente documentation disponible sur le site du projet.
 
 Si on souhaite modifier des paramètres, il faudra l'autoriser dans la configuration du BSBLAN.
 
@@ -46,7 +46,7 @@ Indiquer la configuration du BSBLAN :
 -   **Compte et mot de passe** : codes d'accès au WEB server
 -   **Passkey** : prefixe à fournir au requêtes html (voir documentation BSBLAN)
 -   **Timeout** : durée maxi pendant laquelle on attend une réponse à la requete http (15 secondes si le champ est vide)
--   **Mises à jour** : méthode utilisée pour effectuer les mises à jour soit JSON soit une commande directe dans l'url (dans certains cas, on a constaté que les mises à jour via JSON n'étaitent pas effectuées. Il n'a pas été possible de comprendre pourquoi. Dans ce cas, on peut utiliser l'option par commande qui fonctionne dans tous les cas. Cependant, en version 3 de BSBLAN, certaines commandes nécessitant de spécifier le flag INFO (par exemple envoyer la température ambiante ) ne sont pas prises en compte)
+-   **Mises à jour** : méthode utilisée pour effectuer les mises à jour soit JSON soit une commande directe dans l'url . Dans certains cas, on a constaté que les mises à jour via JSON n'étaitent pas effectuées. Il n'a pas été possible de comprendre pourquoi. Dans ce cas, on peut utiliser l'option par commande /S qui fonctionne dans tous les cas. Cependant, en version 3 de BSBLAN, certaines commandes nécessitant de spécifier le flag INFO (par exemple envoyer la température ambiante) ne sont pas prises en compte.
 -   **Nombre essais** : nombre de fois où la commande est soumise en cas d'échec (3 si le champ est vide)
 -   **Icone** : permet de sélectionner un type d'icône pour l'équipement dans le paneau de configuration
 
@@ -55,7 +55,7 @@ Il est possible d'associer une icone spécifique au BSBLAN. On peut également p
 Les boutons suivants permettent les fonctions suivantes:
 
 -   **Accéder au BSBLAN** : permet d'ouvrir une session WEB sur le BSBLAN
--   **Tester la connexion au BSBLAN** :  permet de tester si les paramètres de connexion sont corrects (penser à sauvegarder la configuration avant de cliquer sur le bouton).
+-   **Tester la connexion au BSBLAN** :  permet de tester si les paramètres de connexion sont corrects (penser à sauvegarder la configuration avant de cliquer sur le bouton). Le numéro de version du BSBLAN est affiché.
 
 # Commandes associées aux équipements
 
