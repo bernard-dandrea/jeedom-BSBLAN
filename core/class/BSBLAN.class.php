@@ -639,7 +639,8 @@ class BSBLAN extends eqLogic
                     $value = $obj_detail["$item_id"]['desc'];
                 }
             }
-            $_cmd->event($value);
+            $eqLogic=$_cmd->getEqlogic();
+            $eqLogic->checkAndUpdateCmd($_cmd, $value);
             return true;
         } else {
             return false;
