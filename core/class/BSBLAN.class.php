@@ -620,7 +620,7 @@ class BSBLAN extends eqLogic
             if (is_numeric($cmd->getLogicalId()) && $cmd->getConfiguration('isCollected') == 1 && ($cmd->getConfiguration('cron') == $_cron || $_cron == 'refresh')) {
                 if ($_eqLogic->refresh_info_cmd($cmd) == true) {
                     $_eqLogic_refresh_cmd = $_eqLogic->getCmd(null, 'updatetime');
-                    $_eqLogic_refresh_cmd->event(date("d/m/Y H:i", (time())));
+                    $_eqLogic->checkAndUpdateCmd($_eqLogic_refresh_cmd, date("d/m/Y H:i", (time())));
                 }
             }
         }
@@ -639,7 +639,8 @@ class BSBLAN extends eqLogic
                     $value = $obj_detail["$item_id"]['desc'];
                 }
             }
-            $eqLogic=$_cmd->getEqlogic();
+            // $_cmd->event($value);
+            $eqLogic = $_cmd->getEqlogic();
             $eqLogic->checkAndUpdateCmd($_cmd, $value);
             return true;
         } else {
