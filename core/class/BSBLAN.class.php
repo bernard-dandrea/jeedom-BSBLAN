@@ -1,5 +1,7 @@
 <?php
 
+// Last Modified : 2026/07/03 16:01:30
+
 /* This file is part of Jeedom.
  *
  * Jeedom is free software: you can redistribute it and/or modify
@@ -21,9 +23,23 @@ require_once dirname(__FILE__) . '/../../../../core/php/core.inc.php';
 
 class BSBLAN extends eqLogic
 {
+
+    public function encrypt()
+    {
+        $this->setConfiguration('user', utils::encrypt($this->getConfiguration('user')));
+        $this->setConfiguration('password', utils::encrypt($this->getConfiguration('password')));
+        $this->setConfiguration('passkey', utils::encrypt($this->getConfiguration('passkey')));
+    }
+
+    public function decrypt()
+    {
+        $this->setConfiguration('user', utils::decrypt($this->getConfiguration('user')));
+        $this->setConfiguration('password', utils::decrypt($this->getConfiguration('password')));
+        $this->setConfiguration('passkey', utils::decrypt($this->getConfiguration('passkey')));
+    }
+
     public function test_connexion()
     {
-
         log::add('BSBLAN', 'info', __('test_connexion ', __FILE__));
 
         $ip = $this->getConfiguration('ip');
@@ -558,7 +574,7 @@ class BSBLAN extends eqLogic
         }
     }
 
-
+    /*
 
     public static function cron()
     {
@@ -611,7 +627,71 @@ class BSBLAN extends eqLogic
             }
         }
     }
+*/
 
+    public static function cron()
+    {
+        log::add('BSBLAN', 'info', 'Lancement de cron');
+        foreach (eqLogic::byTypeAndSearchConfiguration('BSBLAN', '"type":"BSBLAN"') as $eqLogic) {
+            log::add('BSBLAN', 'info', 'Appel BSBLAN_Update BSBLAN : ' . $eqLogic->getName());
+            if ($eqLogic->getIsEnable()) {
+                BSBLAN::BSBLAN_Update($eqLogic);
+            }
+        }
+    }
+
+    public static function BSBLAN_Update($_eqLogic, $_context = 'cron')
+    {
+        log::add('BSBLAN', 'info', 'BSBLAN_Update Appareil : ' . $_eqLogic->getName() . ' Contexte ' . $_context);
+
+        foreach ($_eqLogic->getCmd() as $cmd) {
+            if (is_numeric($cmd->getLogicalId()) && $cmd->getConfiguration('isCollected') == 1) {
+                $run = false;
+                if ($_context == 'refresh') {
+                    $run = true;
+                } else {
+                    $autorefresh = '';
+                    switch ($cmd->getConfiguration('cron')) {
+                        case "cron":
+                            $autorefresh = '*/1 * * * *';
+                            break;
+                        case "cron5":
+                            $autorefresh = '*/5 * * * *';
+                            break;
+                        case "cron10":
+                            $autorefresh = '*/10 * * * *';
+                            break;
+                        case "cron15":
+                            $autorefresh = '*/15 * * * *';
+                            break;
+                        case "cron30":
+                            $autorefresh = '*/30 * * * *';
+                            break;
+                        case "cronHourly":
+                            $autorefresh = '0 * * * *';
+                            break;
+                        case "cronDaily":
+                            $autorefresh = '0 0 * * *';
+                            break;
+                    }
+                    if ($autorefresh != '') {
+                        $c = new Cron\CronExpression($autorefresh, new Cron\FieldFactory);
+                        if ($c->isDue()) {
+                            $run = true;
+                        }
+                    }
+                }
+
+                if ($run == true) {
+                    if ($_eqLogic->refresh_info_cmd($cmd) == true) {
+                        $_eqLogic_refresh_cmd = $_eqLogic->getCmd(null, 'updatetime');
+                        $_eqLogic->checkAndUpdateCmd($_eqLogic_refresh_cmd, date("d/m/Y H:i", (time())));
+                    }
+                }
+            }
+        }
+    }
+    /*
     public function BSBLAN_Update($_cron)
     {
         $_eqLogic = $this;
@@ -625,7 +705,7 @@ class BSBLAN extends eqLogic
             }
         }
     }
-
+*/
     function refresh_info_cmd($_cmd)
     {
         log::add('BSBLAN', 'debug', 'Read parameter ' . $_cmd->getLogicalId() . ' ' . $_cmd->getName());
@@ -639,7 +719,6 @@ class BSBLAN extends eqLogic
                     $value = $obj_detail["$item_id"]['desc'];
                 }
             }
-            // $_cmd->event($value);
             $eqLogic = $_cmd->getEqlogic();
             $eqLogic->checkAndUpdateCmd($_cmd, $value);
             return true;
@@ -664,7 +743,7 @@ class BSBLANCmd extends cmd
         // Refresh toutes les infos
         if ($this->getLogicalId() == 'refresh') {
             log::add('BSBLAN', 'info', __('execute ', __FILE__) . '  refresh');
-            $eqLogic->BSBLAN_Update('refresh');
+            BSBLAN::BSBLAN_Update($eqLogic,'refresh');
             return true;
         }
 
