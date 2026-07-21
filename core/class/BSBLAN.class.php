@@ -1,6 +1,6 @@
 <?php
 
-// Last Modified : 2026/07/04 09:05:03
+// Last Modified : 2026/07/21 16:04:00
 
 /* This file is part of Jeedom.
  *
@@ -37,6 +37,33 @@ class BSBLAN extends eqLogic
         $this->setConfiguration('password', utils::decrypt($this->getConfiguration('password')));
         $this->setConfiguration('passkey', utils::decrypt($this->getConfiguration('passkey')));
     }
+
+    public static function enable_cron($_enable)
+    {
+        $cron_BSBLAN = cron::byClassAndFunction('BSBLAN', 'update');
+        $schedule = '* * * * *';
+        if ($_enable == '1') {
+            log::add('BSBLAN', 'debug', __('Activation du cron de BSBLAN', __FILE__));
+            if (!is_object($cron_BSBLAN)) {
+                $cron_BSBLAN = new cron();
+                $cron_BSBLAN->setClass('BSBLAN');
+                $cron_BSBLAN->setFunction('update');
+                $cron_BSBLAN->setEnable(1);
+                $cron_BSBLAN->setDeamon(0);
+                $cron_BSBLAN->setSchedule($schedule);
+                $cron_BSBLAN->setTimeout(1);
+            } else {
+                $cron_BSBLAN->setEnable(1);
+            }
+            $cron_BSBLAN->save();
+        } else {
+            log::add('BSBLAN', 'debug', __('Désactivation du cron de BSBLAN', __FILE__));
+            if (is_object($cron_BSBLAN)) {
+                $cron_BSBLAN->remove();
+            }
+        }
+    }
+
 
     public function test_connexion()
     {
@@ -559,7 +586,16 @@ class BSBLAN extends eqLogic
 
     public static function cron()
     {
-        log::add('BSBLAN', 'info', 'Lancement de cron');
+        $cron_BSBLAN = cron::byClassAndFunction('BSBLAN', 'update');
+        if (!is_object($cron_BSBLAN)) {
+            log::add('BSBLAN', 'info', 'Lancement de cron');
+            BSBLAN::update();
+        }
+    }
+
+    public static function update()
+    {
+        log::add('BSBLAN', 'info', 'Lancement de update');
         foreach (eqLogic::byTypeAndSearchConfiguration('BSBLAN', '"type":"BSBLAN"') as $eqLogic) {
             log::add('BSBLAN', 'info', 'Appel BSBLAN_Update BSBLAN : ' . $eqLogic->getName());
             if ($eqLogic->getIsEnable()) {
@@ -656,7 +692,7 @@ class BSBLANCmd extends cmd
         // Refresh toutes les infos
         if ($this->getLogicalId() == 'refresh') {
             log::add('BSBLAN', 'info', __('execute ', __FILE__) . '  refresh');
-            BSBLAN::BSBLAN_Update($eqLogic,'refresh');
+            BSBLAN::BSBLAN_Update($eqLogic, 'refresh');
             return true;
         }
 
