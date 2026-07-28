@@ -1,4 +1,7 @@
 <?php
+
+// Last Modified : 2026/07/21 17:03:19
+
 /* This file is part of Jeedom.
 *
 * Jeedom is free software: you can redistribute it and/or modify
@@ -19,30 +22,27 @@ require_once dirname(__FILE__) . '/../../../core/php/core.inc.php';
 
 // Fonction exécutée automatiquement après l'installation du plugin
 
-function BSBLAN_install()
-{
-
-}
+function BSBLAN_install() {}
 
 // Fonction exécutée automatiquement après la mise à jour du plugin
 
 
 function BSBLAN_update()
 {
-
-    foreach (eqLogic::byType('BSB-LAN') as $eqLogic) {
+    foreach (eqLogic::byTypeAndSearchConfiguration('BSBLAN', '"type":"BSBLAN"') as $eqLogic) {
         $eqLogic->save();
     }
 }
 
 
-function BSBLAN_pre_update()
-{
-
-}
+function BSBLAN_pre_update() {}
 
 // Fonction exécutée automatiquement après la suppression du plugin
 
 function BSBLAN_remove()
 {
+    $cron = cron::byClassAndFunction('BSBLAN', 'update');
+    if (is_object($cron)) {
+        $cron->remove();
+    }
 }

@@ -1,5 +1,7 @@
 <?php
 
+// Last Modified : 2026/07/21 16:04:00
+
 /* This file is part of Jeedom.
  *
  * Jeedom is free software: you can redistribute it and/or modify
@@ -21,9 +23,50 @@ require_once dirname(__FILE__) . '/../../../../core/php/core.inc.php';
 
 class BSBLAN extends eqLogic
 {
+
+    public function encrypt()
+    {
+        $this->setConfiguration('user', utils::encrypt($this->getConfiguration('user')));
+        $this->setConfiguration('password', utils::encrypt($this->getConfiguration('password')));
+        $this->setConfiguration('passkey', utils::encrypt($this->getConfiguration('passkey')));
+    }
+
+    public function decrypt()
+    {
+        $this->setConfiguration('user', utils::decrypt($this->getConfiguration('user')));
+        $this->setConfiguration('password', utils::decrypt($this->getConfiguration('password')));
+        $this->setConfiguration('passkey', utils::decrypt($this->getConfiguration('passkey')));
+    }
+
+    public static function enable_cron($_enable)
+    {
+        $cron_BSBLAN = cron::byClassAndFunction('BSBLAN', 'update');
+        $schedule = '* * * * *';
+        if ($_enable == '1') {
+            log::add('BSBLAN', 'debug', __('Activation du cron de BSBLAN', __FILE__));
+            if (!is_object($cron_BSBLAN)) {
+                $cron_BSBLAN = new cron();
+                $cron_BSBLAN->setClass('BSBLAN');
+                $cron_BSBLAN->setFunction('update');
+                $cron_BSBLAN->setEnable(1);
+                $cron_BSBLAN->setDeamon(0);
+                $cron_BSBLAN->setSchedule($schedule);
+                $cron_BSBLAN->setTimeout(1);
+            } else {
+                $cron_BSBLAN->setEnable(1);
+            }
+            $cron_BSBLAN->save();
+        } else {
+            log::add('BSBLAN', 'debug', __('Désactivation du cron de BSBLAN', __FILE__));
+            if (is_object($cron_BSBLAN)) {
+                $cron_BSBLAN->remove();
+            }
+        }
+    }
+
+
     public function test_connexion()
     {
-
         log::add('BSBLAN', 'info', __('test_connexion ', __FILE__));
 
         $ip = $this->getConfiguration('ip');
@@ -492,8 +535,6 @@ class BSBLAN extends eqLogic
         }
     }
 
-
-
     public function preInsert()
     {
         if ($this->getConfiguration('type', '') == "") {
@@ -501,23 +542,8 @@ class BSBLAN extends eqLogic
         }
     }
 
-    public function preUpdate()
-    {
-        if ($this->getIsEnable()) {
-            //    return $this->getSessionId();
-        }
-    }
-
-    public function preSave()
-    {
-        if ($this->getIsEnable()) {
-            //    return $this->getSessionId();
-        }
-    }
-
     public function preRemove()
     {
-
         return true;
     }
 
@@ -558,69 +584,73 @@ class BSBLAN extends eqLogic
         }
     }
 
-
-
     public static function cron()
     {
-        log::add('BSBLAN', 'info', 'Lancement de cron');
-        BSBLAN::cron_update(__FUNCTION__);
-    }
-    public static function cron5()
-    {
-        sleep(5);
-        log::add('BSBLAN', 'info', 'Lancement de cron5');
-        BSBLAN::cron_update(__FUNCTION__);
-    }
-    public static function cron10()
-    {
-        sleep(10);
-        log::add('BSBLAN', 'info', 'Lancement de cron10');
-        BSBLAN::cron_update(__FUNCTION__);
-    }
-    public static function cron15()
-    {
-        sleep(15);
-        log::add('BSBLAN', 'info', 'Lancement de cron15');
-        BSBLAN::cron_update(__FUNCTION__);
-    }
-    public static function cron30()
-    {
-        sleep(20);
-        log::add('BSBLAN', 'info', 'Lancement de cron30');
-        BSBLAN::cron_update(__FUNCTION__);
+        $cron_BSBLAN = cron::byClassAndFunction('BSBLAN', 'update');
+        if (!is_object($cron_BSBLAN)) {
+            log::add('BSBLAN', 'info', 'Lancement de cron');
+            BSBLAN::update();
+        }
     }
 
-    public static function cronHourly()
+    public static function update()
     {
-        sleep(25);
-        log::add('BSBLAN', 'info', 'Lancement de cronHourly');
-        BSBLAN::cron_update(__FUNCTION__);
-    }
-
-    public static function cronDaily()
-    {
-        sleep(30);
-        log::add('BSBLAN', 'info', 'Lancement de cronDaily');
-        BSBLAN::cron_update(__FUNCTION__);
-    }
-    public static function cron_update($_cron)
-    {
+        log::add('BSBLAN', 'info', 'Lancement de update');
         foreach (eqLogic::byTypeAndSearchConfiguration('BSBLAN', '"type":"BSBLAN"') as $eqLogic) {
+            log::add('BSBLAN', 'info', 'Appel BSBLAN_Update BSBLAN : ' . $eqLogic->getName());
             if ($eqLogic->getIsEnable()) {
-                $eqLogic->BSBLAN_Update($_cron);
+                BSBLAN::BSBLAN_Update($eqLogic);
             }
         }
     }
 
-    public function BSBLAN_Update($_cron)
+    public static function BSBLAN_Update($_eqLogic, $_context = 'cron')
     {
-        $_eqLogic = $this;
-        log::add('BSBLAN', 'info', 'BSBLAN_Update Appareil : ' . $_eqLogic->getName() . ' cron ' . $_cron);
+        log::add('BSBLAN', 'info', 'BSBLAN_Update Appareil : ' . $_eqLogic->getName() . ' Contexte ' . $_context);
+
         foreach ($_eqLogic->getCmd() as $cmd) {
-            if (is_numeric($cmd->getLogicalId()) && $cmd->getConfiguration('isCollected') == 1 && ($cmd->getConfiguration('cron') == $_cron || $_cron == 'refresh')) {
-                if ($_eqLogic->refresh_info_cmd($cmd) == true) {
-                    $_eqLogic_refresh_cmd = $_eqLogic->getCmd(null, 'updatetime');
-                    $_eqLogic->checkAndUpdateCmd($_eqLogic_refresh_cmd, date("d/m/Y H:i", (time())));
+            if (is_numeric($cmd->getLogicalId()) && $cmd->getConfiguration('isCollected') == 1) {
+                $run = false;
+                if ($_context == 'refresh') {
+                    $run = true;
+                } else {
+                    $autorefresh = '';
+                    switch ($cmd->getConfiguration('cron')) {
+                        case "cron":
+                            $autorefresh = '*/1 * * * *';
+                            break;
+                        case "cron5":
+                            $autorefresh = '*/5 * * * *';
+                            break;
+                        case "cron10":
+                            $autorefresh = '*/10 * * * *';
+                            break;
+                        case "cron15":
+                            $autorefresh = '*/15 * * * *';
+                            break;
+                        case "cron30":
+                            $autorefresh = '*/30 * * * *';
+                            break;
+                        case "cronHourly":
+                            $autorefresh = '0 * * * *';
+                            break;
+                        case "cronDaily":
+                            $autorefresh = '0 0 * * *';
+                            break;
+                    }
+                    if ($autorefresh != '') {
+                        $c = new Cron\CronExpression($autorefresh, new Cron\FieldFactory);
+                        if ($c->isDue()) {
+                            $run = true;
+                        }
+                    }
+                }
+
+                if ($run == true) {
+                    if ($_eqLogic->refresh_info_cmd($cmd) == true) {
+                        $_eqLogic_refresh_cmd = $_eqLogic->getCmd(null, 'updatetime');
+                        $_eqLogic->checkAndUpdateCmd($_eqLogic_refresh_cmd, date("d/m/Y H:i", (time())));
+                    }
                 }
             }
         }
@@ -639,7 +669,6 @@ class BSBLAN extends eqLogic
                     $value = $obj_detail["$item_id"]['desc'];
                 }
             }
-            // $_cmd->event($value);
             $eqLogic = $_cmd->getEqlogic();
             $eqLogic->checkAndUpdateCmd($_cmd, $value);
             return true;
@@ -655,7 +684,6 @@ class BSBLANCmd extends cmd
     public function execute($_options = null)
     {
 
-        // Refresh toutes les infos
         $eqLogic = $this->getEqLogic();
         if (!is_object($eqLogic) || $eqLogic->getIsEnable() != 1) {
             throw new \Exception(__('Equipement desactivé impossible d\éxecuter la commande : ' . $this->getHumanName(), __FILE__));
@@ -664,10 +692,9 @@ class BSBLANCmd extends cmd
         // Refresh toutes les infos
         if ($this->getLogicalId() == 'refresh') {
             log::add('BSBLAN', 'info', __('execute ', __FILE__) . '  refresh');
-            $eqLogic->BSBLAN_Update('refresh');
+            BSBLAN::BSBLAN_Update($eqLogic, 'refresh');
             return true;
         }
-
 
         // Commande action
         if (substr($this->getLogicalId(), 0, 2) == 'A_') {

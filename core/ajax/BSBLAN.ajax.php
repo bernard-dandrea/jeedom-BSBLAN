@@ -1,4 +1,7 @@
 <?php
+
+// Last Modified : 2026/07/21 16:03:16
+
 /* This file is part of Jeedom.
  *
  * Jeedom is free software: you can redistribute it and/or modify
@@ -57,6 +60,11 @@ try {
         ajax::success($BSBLAN);
 
       
+    }
+
+    if (init('action') == 'enable_cron') {
+        BSBLAN::enable_cron(init('enable'));
+        ajax::success();
     }
 
 
