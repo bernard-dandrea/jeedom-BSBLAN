@@ -70,13 +70,15 @@ $eqLogics = eqLogic::byType($plugin->getId());
     <div class="input-group pull-right" style="display:inline-flex;">
       <span class="input-group-btn">
         <!-- Les balises <a></a> sont volontairement fermées à la ligne suivante pour éviter les espaces entre les boutons. Ne pas modifier -->
-        <a class="btn btn-sm btn-default eqLogicAction roundedLeft" data-action="configure"><i
-            class="fas fa-cogs"></i><span class="hidden-xs"> {{Configuration avancée}}</span>
-        </a><a class="btn btn-sm btn-success eqLogicAction" data-action="save"><i class="fas fa-check-circle"></i>
-          {{Sauvegarder}}
-        </a><a class="btn btn-sm btn-danger eqLogicAction roundedRight" data-action="remove"><i
-            class="fas fa-minus-circle"></i> {{Supprimer}}
-        </a>
+        <a class="btn btn-sm btn-default eqLogicAction roundedLeft" data-action="copy"><i
+            class="fas fa-copy"></i><span class="hidden-xs"> {{Duppliquer}}</span>
+          <a class="btn btn-sm btn-default eqLogicAction roundedLeft" data-action="configure"><i
+              class="fas fa-cogs"></i><span class="hidden-xs"> {{Configuration avancée}}</span>
+          </a><a class="btn btn-sm btn-success eqLogicAction" data-action="save"><i class="fas fa-check-circle"></i>
+            {{Sauvegarder}}
+          </a><a class="btn btn-sm btn-danger eqLogicAction roundedRight" data-action="remove"><i
+              class="fas fa-minus-circle"></i> {{Supprimer}}
+          </a>
       </span>
     </div>
     <!-- Onglets -->
@@ -179,49 +181,49 @@ $eqLogics = eqLogic::byType($plugin->getId());
                 </div>
               </div>               
                
-                <div class="form-group ">
-                  <label class="col-sm-4 control-label">{{Timeout en sec}}</label>
-                  <div class="col-sm-6">
-                    <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="timeout"">
+                <div class=" form-group ">
+                  <label class=" col-sm-4 control-label">{{Timeout en sec}}</label>
+                    <div class="col-sm-6">
+                      <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="timeout"">
                 </div>
               </div>               
-               <div class="form-group ">
-                  <label class="col-sm-4 control-label">{{Nombre essais}}</label>
-                  <div class="col-sm-6">
-                    <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="retry"">
+               <div class=" form-group ">
+                  <label class=" col-sm-4 control-label">{{Nombre essais}}</label>
+                      <div class="col-sm-6">
+                        <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="retry"">
                 </div>    
               </div> 
               <div class=" form-group">
-                    <label class="col-sm-4 control-label">{{Mises à jour}}</label>
-                    <div class="col-sm-6">
-                      <select id="Sel_Update" class="eqLogicAttr form-control" data-l1key="configuration"
-                        data-l2key="set_method">
-                        <option value="">{{via JSON (conseillé pour les versions 3 de BSBLAN)}}</option>
-                        <option value="Set">{{Via la commande /S}}</option>
-                      </select>
+                        <label class="col-sm-4 control-label">{{Mises à jour}}</label>
+                        <div class="col-sm-6">
+                          <select id="Sel_Update" class="eqLogicAttr form-control" data-l1key="configuration"
+                            data-l2key="set_method">
+                            <option value="">{{via JSON (conseillé pour les versions 3 de BSBLAN)}}</option>
+                            <option value="Set">{{Via la commande /S}}</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class=" form-group">
+                        <label class="col-sm-4 control-label">{{Icône}}</label>
+                        <div class="col-sm-6">
+                          <select id="sel_icon" class="eqLogicAttr form-control" data-l1key="configuration"
+                            data-l2key="icon">
+                            <option value="none">{{Aucun}}</option>
+                            <option value="BSBLAN">{{BSBLAN}}</option>
+                            <option value="Chaudiere">{{Chaudière}}</option>
+                            <option value="PAC">{{Pompe à chaleur}}</option>
+                            <option value="Climatisation">{{Climatisation}}</option>
+                            <option value="Perso1">{{Perso1}}</option>
+                            <option value="Perso2">{{Perso2}}</option>
+                            <option value="Perso3">{{Perso3}}</option>
+                            <option value="Perso4">{{Perso4}}</option>
+                          </select>
+                        </div>
+                      </div>
+
+
+
                     </div>
-                  </div>
-              <div class=" form-group">
-                    <label class="col-sm-4 control-label">{{Icône}}</label>
-                    <div class="col-sm-6">
-                      <select id="sel_icon" class="eqLogicAttr form-control" data-l1key="configuration"
-                        data-l2key="icon">
-                        <option value="none">{{Aucun}}</option>
-                        <option value="BSBLAN">{{BSBLAN}}</option>
-                        <option value="Chaudiere">{{Chaudière}}</option>
-                        <option value="PAC">{{Pompe à chaleur}}</option>
-                        <option value="Climatisation">{{Climatisation}}</option>
-                        <option value="Perso1">{{Perso1}}</option>
-                        <option value="Perso2">{{Perso2}}</option>
-                        <option value="Perso3">{{Perso3}}</option>
-                        <option value="Perso4">{{Perso4}}</option>
-                      </select>
-                    </div>
-                  </div>
-
-
-
-                </div>
           </fieldset>
         </form>
       </div>
@@ -244,21 +246,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
         <br><br>
         <div class="table-responsive">
           <table id="table_cmd" class="table table-bordered table-condensed">
-            <thead>
-              <tr>
-                <th class="hidden-xs" style="min-width:50px;width:70px;">ID</th>
-                <th style="min-width:200px;width:350px;">{{Nom}}</th>
-                <th>{{logicalID}}</th>
-                <th>{{Type}}</th>
-                <th style="min-width:260px;">{{Options}}</th>
-                <th>{{Scan / MAJ}}</th>
-                <th>{{Valeur}}
-                </th>
-                <th style="min-width:80px;width:200px;">{{Actions}}</th>
-              </tr>
-            </thead>
-            <tbody>
-            </tbody>
+
           </table>
         </div>
       </div><!-- /.tabpanel #commandtab-->
