@@ -1,7 +1,7 @@
 <?php
 
 
-// Last Modified : 2026/07/21 16:01:35
+// Last Modified : 2026/08/15 17:45:53
 
 /* This file is part of Jeedom.
 *
@@ -32,7 +32,7 @@ if (!isConnect()) {
 <form class="form-horizontal">
   <fieldset>
         <div class=" form-group">
-      <label class="col-sm-3 control-label">{{Utiliser un cron spécifique}}</label>
+      <label class="col-sm-3 control-label">{{Utiliser un cron autonome (via le moteur des tâches)}}</label>
       <div class="col-sm-3">
         <select style="width: 150px;" id="sel_CronSpecifique" class="configKey form-control" data-l1key="CronSpecifique">
           <option value="">{{Non}}</option>
