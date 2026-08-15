@@ -71,7 +71,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
       <span class="input-group-btn">
         <!-- Les balises <a></a> sont volontairement fermées à la ligne suivante pour éviter les espaces entre les boutons. Ne pas modifier -->
         <a class="btn btn-sm btn-default eqLogicAction roundedLeft" data-action="copy"><i
-            class="fas fa-copy"></i><span class="hidden-xs"> {{Duppliquer}}</span>
+            class="fas fa-copy"></i><span class="hidden-xs"> {{Dupliquer}}</span>
           <a class="btn btn-sm btn-default eqLogicAction roundedLeft" data-action="configure"><i
               class="fas fa-cogs"></i><span class="hidden-xs"> {{Configuration avancée}}</span>
           </a><a class="btn btn-sm btn-success eqLogicAction" data-action="save"><i class="fas fa-check-circle"></i>
