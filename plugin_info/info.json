@@ -1,29 +1,30 @@
 {
-	"id" : "BSBLAN",
-	"name" : "BSBLAN",
-	"specialAttributes" : {
-		"object" : {
-
-		},
-		"user" : {
-		}
+	"id": "BSBLAN",
+	"name": "BSBLAN",
+	"specialAttributes": {
+		"object": {},
+		"user": {}
 	},
-	"description" : {
-		"fr_FR": "Plugin permettant de s'interfacer avec les controleurs BSB-LAN"
+	"description": {
+		"fr_FR": "Plugin permettant de s'interfacer avec les controleurs BSB-LAN",
+		"en_US": "Plugin for interfacing with BSB-LAN controllers",
+		"es_ES": "Complemento que permite conectarse con los controladores BSB-LAN",
+		"de_DE": "Plugin zur Anbindung an BSB-LAN-Steuerungen",
+		"it_IT": "Plugin che consente l'interfacciamento con i controller BSB-LAN",
+		"pt_PT": "Plugin que permite a ligação aos controladores BSB-LAN"
 	},
-	"licence" : "AGPL",
-	"author" : "Bernard Dandrea",
-	"require" : "4.4.0",
-	"category" : "devicecommunication",
-	"hasDependency" : false,
-	"hasOwnDeamon" : false,
-	"maxDependancyInstallTime" : 0,
-	"changelog" : "https://bernard-dandrea.github.io/documentation/jeedom-BSBLAN/doc/#language#/changelog",
-	"documentation" : "https://bernard-dandrea.github.io/documentation/jeedom-BSBLAN/doc/#language#/index",
-	"changelog_beta" : "https://bernard-dandrea.github.io/documentation/jeedom-BSBLAN/doc/#language#/changelog_beta",
-	"documentation_beta" : "https://bernard-dandrea.github.io/documentation/jeedom-BSBLAN/doc/#language#/index",
-	"link" : {
-	},
+	"licence": "AGPL",
+	"author": "Bernard Dandrea",
+	"require": "4.4.0",
+	"category": "devicecommunication",
+	"hasDependency": false,
+	"hasOwnDeamon": false,
+	"maxDependancyInstallTime": 0,
+	"changelog": "https://bernard-dandrea.github.io/documentation/jeedom-BSBLAN/doc/#language#/changelog",
+	"documentation": "https://bernard-dandrea.github.io/documentation/jeedom-BSBLAN/doc/#language#/index",
+	"changelog_beta": "https://bernard-dandrea.github.io/documentation/jeedom-BSBLAN/doc/#language#/changelog_beta",
+	"documentation_beta": "https://bernard-dandrea.github.io/documentation/jeedom-BSBLAN/doc/#language#/index",
+	"link": {},
 	"language": [
 		"de_DE",
 		"en_US",
@@ -43,4 +44,3 @@
 		"atlas"
 	]
 }
-
