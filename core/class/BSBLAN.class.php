@@ -238,7 +238,7 @@ class BSBLAN extends eqLogic
         $json = $this->https_file_get_contents($_api, $json_data);
         if ($json == false)
             return false;
-        log::add('BSBLAN', 'debug', __FUNCTION__ . ' ' . __('Requete', __FILE__) . ' ' . $_api . ' json ' . $json);
+        log::add('BSBLAN', 'debug', __FUNCTION__ . ' ' . __('Requete', __FILE__) . ' ' . $_api . ' json ' . compactJsonText($json));
 
         $obj = json_decode($json, TRUE);
         log::add('BSBLAN', 'debug', 'Data : ' . self::FormatArrayForLog($obj));
@@ -654,6 +654,10 @@ class BSBLAN extends eqLogic
     private function compactHtmlText($value)
     {
         return preg_replace('/\s+/', ' ', strip_tags($value));
+    }
+    private function compactJsonText($value)
+    {
+        return preg_replace('/\s+/', ' ', $value);
     }
 
     public static function getUniqueCmdName($eqLogicId, $name)
