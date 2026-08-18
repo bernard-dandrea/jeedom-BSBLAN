@@ -1,6 +1,6 @@
 <?php
 
-// Last Modified : 2026/08/06 17:45:45
+// Last Modified : 2026/08/18 18:54:07
 
 if (!isConnect('admin')) {
   throw new Exception('{{401 - Accès non autorisé}}');
