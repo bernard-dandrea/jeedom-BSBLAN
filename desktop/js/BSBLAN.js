@@ -153,12 +153,12 @@ function printEqLogic(_eqLogic) {
 document.getElementById('bt_gotoBSBLAN').addEventListener('click', function () {
 
     var ipElem = document.querySelector('.eqLogicAttr[data-l2key=ip]');
-    var ip = (ipElem ? ipElem.value : '').trim();
+    var ip = (ipElem ? ipElem.jeeValue() : '').trim();
     if (!ip) {
         return;
     }
     var passkeyElem = document.querySelector('.eqLogicAttr[data-l2key=passkey]');
-    var passkey = (passkeyElem ? passkeyElem.value : '').trim();
+    var passkey = (passkeyElem ? passkeyElem.jeeValue() : '').trim();
 
     var url = 'http://' + ip + '/';
     if (passkey != '')
@@ -169,7 +169,7 @@ document.getElementById('bt_gotoBSBLAN').addEventListener('click', function () {
 
 document.querySelector('#bt_TestConnexionBSBLAN').addEventListener('click', function () {
 
-    var eqLogicId = document.querySelector('.eqLogicAttr[data-l1key="id"]').value;
+    var eqLogicId = document.querySelector('.eqLogicAttr[data-l1key="id"]').jeeValue();
 
     var paramsAJAX = {
         type: "POST",
@@ -202,7 +202,7 @@ document.querySelector('#bt_TestConnexionBSBLAN').addEventListener('click', func
 });
 
 function createCommandFromPrompt(options) {
-    var eqLogicId = document.querySelector('.eqLogicAttr[data-l1key="id"]').value;
+    var eqLogicId = document.querySelector('.eqLogicAttr[data-l1key="id"]').jeeValue();
 
     jeeDialog.prompt({
         message: {{'Paramètre ?'}}

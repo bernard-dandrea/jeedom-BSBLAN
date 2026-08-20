@@ -1,6 +1,6 @@
 <?php
 
-// Last Modified : 2026/08/18 18:54:07
+// Last Modified : 2026/08/20 16:43:27
 
 if (!isConnect('admin')) {
   throw new Exception('{{401 - Accès non autorisé}}');
@@ -150,9 +150,8 @@ $eqLogics = eqLogic::byType($plugin->getId());
               <div class="form-group">
                 <label class="col-sm-4 control-label"></label>
                 <div class="col-sm-4">
-                  <a class="btn btn-default " id="bt_gotoBSBLAN" '><i class="fa fa-cogs"> {{Accéder au BSBLAN}}</i></a>
-                  <a class="btn btn-default " id="bt_TestConnexionBSBLAN" '><i class="fa fa-cogs"> {{Tester la
-                      connexion au BSBLAN}}</i></a>
+                  <a class="btn btn-default " id="bt_gotoBSBLAN"><i class="fa fa-cogs"> {{Accéder au BSBLAN}}</i></a>
+                  <a class="btn btn-default " id="bt_TestConnexionBSBLAN" title="{{Si vous avez modifié un des paramètres de connexion, veuillez d'abord sauvegarder la configuration avant de lancer le test}}"><i class="fa fa-cogs"> {{Tester la connexion au BSBLAN}}</i></a>
                 </div>
               </div>
 

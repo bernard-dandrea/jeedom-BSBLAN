@@ -1,6 +1,6 @@
 <?php
 
-// Last Modified : 2026/08/16 07:11:57
+// Last Modified : 2026/08/20 16:40:05
 
 /* This file is part of Jeedom.
  *
@@ -210,14 +210,14 @@ class BSBLAN extends eqLogic
             }
 
             if ($http_code == intval(200)) {
-                log::add('BSBLAN', 'debug', 'curl_exec response : http_code ' . $http_code . ' ' . __('reponse', __FILE__) . ' --> ' . self::compactHtmlText($response));
+                log::add('BSBLAN', 'debug', 'curl_exec response : http_code ' . $http_code . ' ' . __('réponse', __FILE__) . ' --> ' . self::compactHtmlText($response));
             } else {
                 if ($http_code == intval(0)) {
-                    $return = __('BSBLAN http erreur', __FILE__) . ' : ' . __('Pas de reponse de', __FILE__) . ' ' . $this->getConfiguration('ip') . ' Curl error: ' . curl_error($ch);
+                    $return = __('BSBLAN http erreur', __FILE__) . ' : ' . __('Pas de réponse de', __FILE__) . ' ' . $this->getConfiguration('ip') . ' Curl error: ' . curl_error($ch);
                     log::add('BSBLAN', 'error', $return);
                     return false;
                 } else {
-                    $return = __('BSBLAN http erreur', __FILE__) . ' : ' . $http_code . ' ' . __('reponse', __FILE__) . ' --> ' . self::compactHtmlText($response);
+                    $return = __('BSBLAN http erreur', __FILE__) . ' : ' . $http_code . ' ' . __('réponse', __FILE__) . ' --> ' . self::compactHtmlText($response);
                     log::add('BSBLAN', 'debug', $return);
                     return false;
                 }
@@ -250,7 +250,6 @@ class BSBLAN extends eqLogic
     {
         log::add('BSBLAN', 'info', __FUNCTION__ . ' ' . $this->getName() . ' Commande ' . $id_commande . ' Info ' . $info . ' Action ' . $action . ' Refresh ' . $refresh);
 
-        //    $carte->getSessionId();
         if ($info != '') {
             $return = $this->create_info_command($id_commande);
         }
