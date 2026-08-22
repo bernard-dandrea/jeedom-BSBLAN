@@ -1,4 +1,4 @@
-// Last Modified : 2026/08/22 18:42:00
+// Last Modified : 2026/08/22 19:57:50
 
 /*
  * Copyright (C) 2026 Bernard Dandrea
@@ -154,7 +154,7 @@ document.getElementById('bt_gotoBSBLAN').addEventListener('click', function () {
     var url = 'http://' + ip + '/';
     if (passkey !== '')
         url += passkey + '/'
-    window.open(url, '_blank');
+    window.open(url);
 });
 
 
