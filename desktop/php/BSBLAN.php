@@ -1,6 +1,12 @@
 <?php
 
-// Last Modified : 2026/08/20 16:43:27
+// Last Modified : 2026/08/22 18:43:37
+
+/*
+ * Copyright (C) 2026 Bernard Dandrea
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * https://www.gnu.org/licenses/gpl-3.0.html
+ */
 
 if (!isConnect('admin')) {
   throw new Exception('{{401 - Accès non autorisé}}');
@@ -72,16 +78,15 @@ $eqLogics = eqLogic::byType($plugin->getId());
     <!-- barre de gestion de l'équipement -->
     <div class="input-group pull-right" style="display:inline-flex;">
       <span class="input-group-btn">
-        <!-- Les balises <a></a> sont volontairement fermées à la ligne suivante pour éviter les espaces entre les boutons. Ne pas modifier -->
-        <a class="btn btn-sm btn-default eqLogicAction roundedLeft" data-action="copy"><i
-            class="fas fa-copy"></i><span class="hidden-xs"> {{Dupliquer}}</span>
-        </a><a class="btn btn-sm btn-default eqLogicAction roundedLeft" data-action="configure"><i
-            class="fas fa-cogs"></i><span class="hidden-xs"> {{Configuration avancée}}</span>
-        </a><a class="btn btn-sm btn-success eqLogicAction" data-action="save"><i class="fas fa-check-circle"></i>
-          {{Sauvegarder}}
-        </a><a class="btn btn-sm btn-danger eqLogicAction roundedRight" data-action="remove"><i
-            class="fas fa-minus-circle"></i> {{Supprimer}}
-        </a>
+        <!--
+        Ne pas ajouter de retour à la ligne ni d'espace entre les balises </a> et <a>.
+        Les boutons sont volontairement adjacents pour éviter un espace
+        visuel entre eux avec le rendu inline/inline-block de Bootstrap.
+        -->
+        <a class="btn btn-sm btn-default eqLogicAction roundedLeft" data-action="copy"><i class="fas fa-copy"></i><span class="hidden-xs"> {{Dupliquer}}</span>
+        </a><a class="btn btn-sm btn-default eqLogicAction roundedLeft" data-action="configure"><i class="fas fa-cogs"></i><span class="hidden-xs"> {{Configuration avancée}}</span>
+        </a><a class="btn btn-sm btn-success eqLogicAction" data-action="save"><i class="fas fa-check-circle"></i> {{Sauvegarder}}
+        </a><a class="btn btn-sm btn-danger eqLogicAction roundedRight" data-action="remove"><i class="fas fa-minus-circle"></i> {{Supprimer}}</a>
       </span>
     </div>
     <!-- Onglets -->
@@ -108,7 +113,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
                 <div class="col-sm-6">
                   <input type="text" class="eqLogicAttr form-control" data-l1key="id" style="display:none;">
                   <input type="text" class="eqLogicAttr form-control" data-l1key="name"
-                    placeholder="{{Nom de l'BSBLAN}}">
+                    placeholder="{{Nom du BSBLAN}}">
                 </div>
               </div>
               <div class="form-group">
@@ -149,83 +154,83 @@ $eqLogics = eqLogic::byType($plugin->getId());
               </div>
               <div class="form-group">
                 <label class="col-sm-4 control-label"></label>
-                <div class="col-sm-4">
-                  <a class="btn btn-default " id="bt_gotoBSBLAN"><i class="fa fa-cogs"> {{Accéder au BSBLAN}}</i></a>
-                  <a class="btn btn-default " id="bt_TestConnexionBSBLAN" title="{{Si vous avez modifié un des paramètres de connexion, veuillez d'abord sauvegarder la configuration avant de lancer le test}}"><i class="fa fa-cogs"> {{Tester la connexion au BSBLAN}}</i></a>
+                <div class="col-sm-8">
+                  <a class="btn btn-default cursor" id="bt_gotoBSBLAN"><i class="fa fa-cogs"></i> {{Accéder au BSBLAN}}</a>
+                  <a class="btn btn-default cursor" id="bt_TestConnexionBSBLAN" title="{{Si vous avez modifié un des paramètres de connexion, veuillez d'abord sauvegarder la configuration avant de lancer le test}}"><i class="fa fa-cogs"></i> {{Tester la connexion au BSBLAN}}</a>
                 </div>
               </div>
 
               <div class="form-group ">
                 <label class="col-sm-4 control-label">{{Adresse IP}}</label>
                 <div class="col-sm-6">
-                  <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="ip"">
+                  <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="ip">
                 </div>
               </div>
 
-              <div class=" form-group ">
-                  <label class=" col-sm-4 control-label">{{Code utilisateur}}</label>
-                  <div class="col-sm-6">
-                    <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="user" />
-                  </div>
+              <div class="form-group ">
+                <label class="col-sm-4 control-label">{{Code utilisateur}}</label>
+                <div class="col-sm-6">
+                  <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="user" />
                 </div>
-                <div class="form-group ">
-                  <label class="col-sm-4 control-label">{{Mot de passe}}</label>
-                  <div class="col-sm-6">
-                    <input type="password" class="eqLogicAttr form-control" data-l1key="configuration"
-                      data-l2key="password" />
-                  </div>
+              </div>
+              <div class="form-group ">
+                <label class="col-sm-4 control-label">{{Mot de passe}}</label>
+                <div class="col-sm-6">
+                  <input type="password" class="eqLogicAttr form-control" data-l1key="configuration"
+                    data-l2key="password" />
                 </div>
+              </div>
 
-                <div class="form-group ">
-                  <label class="col-sm-4 control-label">{{PASSKEY}}</label>
-                  <div class="col-sm-6">
-                    <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="passkey"">
+              <div class="form-group ">
+                <label class="col-sm-4 control-label">{{PASSKEY}}</label>
+                <div class="col-sm-6">
+                  <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="passkey">
                 </div>
-              </div>               
-               
-                <div class=" form-group ">
-                  <label class=" col-sm-4 control-label">{{Timeout en sec}}</label>
-                    <div class="col-sm-6">
-                      <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="timeout"">
+              </div>
+
+              <div class="form-group ">
+                <label class="col-sm-4 control-label">{{Timeout en sec}}</label>
+                <div class="col-sm-6">
+                  <input type="number" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="timeout">
                 </div>
-              </div>               
-               <div class=" form-group ">
-                  <label class=" col-sm-4 control-label">{{Nombre essais}}</label>
-                      <div class="col-sm-6">
-                        <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="retry"">
-                </div>    
-              </div> 
-              <div class=" form-group">
-                        <label class="col-sm-4 control-label">{{Mises à jour}}</label>
-                        <div class="col-sm-6">
-                          <select id="Sel_Update" class="eqLogicAttr form-control" data-l1key="configuration"
-                            data-l2key="set_method">
-                            <option value="">{{via JSON (conseillé pour les versions 3 de BSBLAN)}}</option>
-                            <option value="Set">{{Via la commande /S}}</option>
-                          </select>
-                        </div>
-                      </div>
-                      <div class=" form-group">
-                        <label class="col-sm-4 control-label">{{Icône}}</label>
-                        <div class="col-sm-6">
-                          <select id="sel_icon" class="eqLogicAttr form-control" data-l1key="configuration"
-                            data-l2key="icon">
-                            <option value="none">{{Aucun}}</option>
-                            <option value="BSBLAN">{{BSBLAN}}</option>
-                            <option value="Chaudiere">{{Chaudière}}</option>
-                            <option value="PAC">{{Pompe à chaleur}}</option>
-                            <option value="Climatisation">{{Climatisation}}</option>
-                            <option value="Perso1">{{Perso1}}</option>
-                            <option value="Perso2">{{Perso2}}</option>
-                            <option value="Perso3">{{Perso3}}</option>
-                            <option value="Perso4">{{Perso4}}</option>
-                          </select>
-                        </div>
-                      </div>
+              </div>
+              <div class="form-group ">
+                <label class="col-sm-4 control-label">{{Nombre essais}}</label>
+                <div class="col-sm-6">
+                  <input type="number" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="retry">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-4 control-label">{{Mises à jour}}</label>
+                <div class="col-sm-6">
+                  <select id="Sel_Update" class="eqLogicAttr form-control" data-l1key="configuration"
+                    data-l2key="set_method">
+                    <option value="">{{via JSON (conseillé pour les versions 3 de BSBLAN)}}</option>
+                    <option value="Set">{{Via la commande /S}}</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-4 control-label">{{Icône}}</label>
+                <div class="col-sm-6">
+                  <select id="sel_icon" class="eqLogicAttr form-control" data-l1key="configuration"
+                    data-l2key="icon">
+                    <option value="none">{{Aucun}}</option>
+                    <option value="BSBLAN">{{BSBLAN}}</option>
+                    <option value="Chaudiere">{{Chaudière}}</option>
+                    <option value="PAC">{{Pompe à chaleur}}</option>
+                    <option value="Climatisation">{{Climatisation}}</option>
+                    <option value="Perso1">{{Perso1}}</option>
+                    <option value="Perso2">{{Perso2}}</option>
+                    <option value="Perso3">{{Perso3}}</option>
+                    <option value="Perso4">{{Perso4}}</option>
+                  </select>
+                </div>
+              </div>
 
 
 
-                    </div>
+            </div>
           </fieldset>
         </form>
       </div>
@@ -235,14 +240,9 @@ $eqLogics = eqLogic::byType($plugin->getId());
       <div role="tabpanel" class="tab-pane" id="commandtab">
         <div class="input-group pull-right" style="display:inline-flex;margin-top:5px;">
           <span class="input-group-btn">
-            <a class="btn btn-info btn-xs roundedLeft " id="bt_create_info_command"
-              title=' {{Importer un paramètre}}'><i class="fas fa-plus-circle"> {{Importer un
-                paramètre}}</i></a>
-            <a class="btn btn-info btn-xs roundedLeft " id="bt_create_refresh_command"><i
-                class="fas fa-plus-circle"></i> {{Ajouter une commande refresh}}
-              <a class="btn btn-info btn-xs roundedLeft " id="bt_create_action_command"><i
-                  class="fas fa-plus-circle"></i> {{Ajouter une commande action}}
-              </a>
+            <a class="btn btn-info btn-xs roundedLeft" id="bt_create_info_command"> <i class="fas fa-plus-circle"></i> {{Importer un paramètre}}
+            </a><a class="btn btn-info btn-xs roundedLeft" id="bt_create_refresh_command"> <i class="fas fa-plus-circle"></i> {{Ajouter une commande refresh}}
+            </a><a class="btn btn-info btn-xs roundedLeft" id="bt_create_action_command"> <i class="fas fa-plus-circle"></i> {{Ajouter une commande action}} </a>
           </span>
         </div>
         <br><br>
