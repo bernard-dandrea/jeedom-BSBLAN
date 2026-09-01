@@ -41,6 +41,7 @@ if (!isConnect()) {
       </div>
     </div>
   </fieldset>
+  
 </form>
 <script>
   document.getElementById('bt_savePluginConfig').addEventListener('click', function(event) {

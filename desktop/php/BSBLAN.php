@@ -1,6 +1,6 @@
 <?php
 
-// Last Modified : 2026/08/22 18:43:37
+// Last Modified : 2026/08/31 17:49:35
 
 /*
  * Copyright (C) 2026 Bernard Dandrea
@@ -195,9 +195,21 @@ $eqLogics = eqLogic::byType($plugin->getId());
                 </div>
               </div>
               <div class="form-group ">
-                <label class="col-sm-4 control-label">{{Nombre essais}}</label>
+                <label class="col-sm-4 control-label">{{Nombre d'essais de récupération d'un paramètre}}</label>
                 <div class="col-sm-6">
                   <input type="number" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="retry">
+                </div>
+              </div>
+              <div class="form-group ">
+                <label class="col-sm-4 control-label">{{Nombre d'erreurs avant d'abandonner l'interrogation de l'équipement (défaut 3)}}</label>
+                <div class="col-sm-6">
+                  <input type="number" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="max_errors">
+                </div>
+              </div>
+              <div class="form-group ">
+                <label class="col-sm-4 control-label" Title="Le BSBLAN retourne des erreurs qui ne sont pas forcément bloquantes par exemple 260 -> Type de donnée inconnu (unknown type)">{{Erreurs ignorées (séparées par des points virgule)}}</label>
+                <div class="col-sm-6">
+                  <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="IgnoredErrors">
                 </div>
               </div>
               <div class="form-group">
