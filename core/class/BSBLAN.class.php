@@ -1,6 +1,6 @@
 <?php
 
-// Last Modified : 2026/09/01 06:54:07
+// Last Modified : 2026/09/02 18:36:22
 
 /*
  * Copyright (C) 2026 Bernard Dandrea
@@ -79,30 +79,32 @@ class BSBLAN extends eqLogic
         $ch = curl_init();
         try {
             curl_setopt($ch, CURLOPT_URL, $url_api);
-
             curl_setopt($ch, CURLOPT_HEADER, false);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_NOSIGNAL, 1);
 
             $timeout = $this->getConfiguration('timeout', '15');
             if (is_numeric($timeout)) {
-                curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
-                curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+                curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, (int)$timeout);
+                curl_setopt($ch, CURLOPT_TIMEOUT, (int)$timeout);
             }
 
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
             curl_setopt($ch, CURLOPT_MAXREDIRS, 1);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-            curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+
             if ($user != "") {
+                curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
                 curl_setopt($ch, CURLOPT_USERPWD, $userpassword);
             }
-            $response = curl_exec($ch);
 
+            $response = curl_exec($ch);
             $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
             if ($http_code == 200) {
                 $obj = json_decode($response, TRUE);
-                log::add(__PLUGIN__, 'debug', 'curl_exec response : $http_code ' . $http_code . ' response ' . self::FormatArrayForLog($response));
+                log::add(__PLUGIN__, 'debug', 'curl_exec response : http_code ' . $http_code . ' response ' . self::FormatArrayForLog($response));
                 if (isset($obj['version'])) {
                     $return = __('Connexion OK : version de BSB-LAN', __FILE__) . ' ' . $obj['version'];
                     log::add(__PLUGIN__, 'debug', $return);
@@ -114,7 +116,7 @@ class BSBLAN extends eqLogic
                 }
             } else {
                 if ($http_code == 0) {
-                    $return = __('Connexion KO : erreur http', __FILE__) . ' ' . $http_code . ' ' . __('Pas de réponse de', __FILE__) . ' ' . $this->getConfiguration('ip');
+                    $return = __('Connexion KO : erreur http', __FILE__) . ' ' . $http_code . ' ' . __('Pas de réponse de', __FILE__) . ' ' . $this->getConfiguration('ip') . ' Curl error: ' . curl_error($ch);
                     log::add(__PLUGIN__, 'debug', $return);
                     return 'KO ' . $return;
                 } else {
@@ -152,45 +154,56 @@ class BSBLAN extends eqLogic
 
         $ch = curl_init();
         try {
-            curl_setopt($ch, CURLOPT_URL, $url_api);
 
+            // Options de base
+            curl_setopt($ch, CURLOPT_URL, $url_api);
             curl_setopt($ch, CURLOPT_HEADER, false);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
+            // Recommandé pour éviter les crashs liés aux requêtes asynchrones en PHP
+            curl_setopt($ch, CURLOPT_NOSIGNAL, 1);
+
+            // Gestion du Timeout
             $timeout = $this->getConfiguration('timeout', '15');
             if (is_numeric($timeout)) {
-                curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
-                curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+                curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, (int)$timeout);
+                curl_setopt($ch, CURLOPT_TIMEOUT, (int)$timeout);
             }
 
+            // Gestion des redirections et du SSL (adapté pour l'IoT local)
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
             curl_setopt($ch, CURLOPT_MAXREDIRS, 1);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-            curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+
+            // Gestion de l'authentification
             if ($user != "") {
+                curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
                 curl_setopt($ch, CURLOPT_USERPWD, $userpassword);
             }
+
+            // Gestion du payload JSON (si présent)
             if ($json_data != '') {
-                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-                curl_setopt($ch, CURLOPT_POSTFIELDS, array("customer" => $json_data));
-                curl_setopt($ch, CURLOPT_HEADER, true);
-                curl_setopt(
-                    $ch,
-                    CURLOPT_HTTPHEADER,
-                    array(
-                        'Content-Type:application/json',
-                        'Content-Length: ' . strlen($json_data)
-                    )
-                );
+                curl_setopt($ch, CURLOPT_POST, true);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $json_data);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                    'Content-Type: application/json'
+                    // Le Content-Length est calculé automatiquement par cURL
+                ));
             }
-            $retry = $this->getConfiguration('retry', '3');
-            if (is_numeric($retry) == false) {
-                $retry = 3;
-            } else {
-                if ($retry <= 0) {
-                    $retry = 1;
-                }
+
+            // Gestion du payload JSON (si présent)
+            if ($json_data != '') {
+                curl_setopt($ch, CURLOPT_POST, true);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $json_data);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                    'Content-Type: application/json'
+                    // Le Content-Length est calculé automatiquement par cURL
+                ));
             }
+
+            $retry_config = $this->getConfiguration('retry', 3);
+            $retry = is_numeric($retry_config) ? max(1, (int)$retry_config) : 3;
             $essai = 0;
             while ($essai < $retry) {
                 $response = curl_exec($ch);
@@ -199,7 +212,7 @@ class BSBLAN extends eqLogic
                     break;
                 }
                 log::add(__PLUGIN__, 'warning', 'curl_exec response : http_code ' . $http_code . ' Curl ' . __('erreur', __FILE__) . ': ' . curl_error($ch) . ' -> ' . __('nouvel essai', __FILE__));
-                $essai = $essai + 1;
+                $essai++;
             }
 
             if ($http_code == 200) {
@@ -259,7 +272,7 @@ class BSBLAN extends eqLogic
     private function create_info_command($item_id)
     // crée la commande type info
     {
-        if (is_object(cmd::byEqLogicIdAndLogicalId($this->id, $item_id))) {
+        if (is_object(cmd::byEqLogicIdAndLogicalId($this->getId(), $item_id))) {
             $return = $this->getName() . '  ' . __('commande info déjà créée', __FILE__) . ' ' . $item_id;
             log::add(__PLUGIN__, 'info', __FUNCTION__ . ' ' . $return);
             return 'KO ' . $return;
@@ -366,7 +379,7 @@ class BSBLAN extends eqLogic
     // crée la commande type refresh
     {
 
-        if (is_object(cmd::byEqLogicIdAndLogicalId($this->id, 'R_' . $item_id))) {
+        if (is_object(cmd::byEqLogicIdAndLogicalId($this->getId(), 'R_' . $item_id))) {
             $return = $this->getName() . '  ' . __('commande refresh déjà créée', __FILE__) . ' ' . $item_id;
             log::add(__PLUGIN__, 'info', __FUNCTION__ . ' ' . $return);
             return 'KO ' . $return;
@@ -421,7 +434,7 @@ class BSBLAN extends eqLogic
     // crée la commande type action
     {
 
-        if (is_object(cmd::byEqLogicIdAndLogicalId($this->id, 'A_' . $item_id))) {
+        if (is_object(cmd::byEqLogicIdAndLogicalId($this->getId(), 'A_' . $item_id))) {
             $return = $this->getName() . '  ' . __('commande action déjà créée', __FILE__) . ' ' . $item_id;
             log::add(__PLUGIN__, 'info', __FUNCTION__ . ' ' . $return);
             return 'KO ' . $return;
@@ -455,7 +468,7 @@ class BSBLAN extends eqLogic
             $cmd->setLogicalId('A_' . $item_id); // le logical id est égal à 'A_' plus l'id du parametre
             $cmd->setConfiguration('infoId', $item_id);
             $cmd->setIsVisible(1);
-            $cmd_info = cmd::byEqLogicIdAndLogicalId($this->id, $item_id);
+            $cmd_info = cmd::byEqLogicIdAndLogicalId($this->getId(), $item_id);
             if (is_object($cmd_info)) {
                 $cmd->setValue($cmd_info->getID()); // cmmande info liée
             }
@@ -488,13 +501,6 @@ class BSBLAN extends eqLogic
             $return = __('Commande action créée', __FILE__) . ' ' . $item_id;
             log::add(__PLUGIN__, 'debug', __FUNCTION__ . ' ' . $return);
             return 'OK ' . $return;
-        }
-    }
-
-    public function preInsert()
-    {
-        if ($this->getConfiguration('type', '') == "") {
-            $this->setConfiguration('type', __PLUGIN__);
         }
     }
 
@@ -546,7 +552,6 @@ class BSBLAN extends eqLogic
     public static function update()
     {
         log::add(__PLUGIN__, 'info', __('Lancement de', __FILE__) . ' ' . __FUNCTION__);
-        //       foreach (eqLogic::byTypeAndSearchConfiguration(__PLUGIN__, '"type":"BSBLAN"') as $eqLogic) {
         foreach (eqLogic::byType(__PLUGIN__) as $eqLogic) {
             log::add(__PLUGIN__, 'info', __('Appel ', __FILE__) . ' BSBLAN_Update appareil : ' . $eqLogic->getName());
             if ($eqLogic->getIsEnable()) {
@@ -559,15 +564,8 @@ class BSBLAN extends eqLogic
     {
         log::add(__PLUGIN__, 'info', __FUNCTION__ . ' ' . __('Equipement', __FILE__) . ' : ' . $_eqLogic->getName() . ' ' . __('Contexte', __FILE__) . ' ' . $_context);
 
-        $max_errors = $_eqLogic->getConfiguration('max_errors', '3');
-        if (is_numeric($max_errors) == false) {
-            $max_errors = 3;
-        } else {
-            if ($max_errors <= 0) {
-                $max_errors = 3;
-            }
-        }
-
+        $max_errors = $_eqLogic->getConfiguration('max_errors', 3);
+        $retry = is_numeric($max_errors) ? max(1, (int)$max_errors) : 3;
         $error_number = 0;
         foreach ($_eqLogic->getCmd() as $cmd) {
             if (is_numeric($cmd->getLogicalId()) && $cmd->getConfiguration('isCollected') == 1) {
@@ -615,7 +613,7 @@ class BSBLAN extends eqLogic
                     } else
                         $error_number++;
                 }
-                if ($error_number >= $max_errors) {
+                if ($error_number >= $retry) {
                     log::add(__PLUGIN__, 'error', sprintf(__('Récupération des données de %1$s abandonnée car trop d\'erreurs (%2$s)', __FILE__), $_eqLogic->getName(), $error_number));
                     break;
                 }
@@ -632,13 +630,10 @@ class BSBLAN extends eqLogic
             return false;
         }
 
-        $eqLogic = $_cmd->getEqlogic();
-        $IgnoredErrors = $eqLogic->getConfiguration("IgnoredErrors", ''); //   exemple "260" -> Type de donnée inconnu (unknown type)
+        $eqLogic = $_cmd->getEqLogic();
+        $IgnoredErrors = $eqLogic->getConfiguration("IgnoredErrors", '260');
 
-        // Initialiser le tableau vide par défaut
         $exceptions = [];
-
-        // Si la chaîne n'est pas vide, on la découpe
         if (trim($IgnoredErrors) !== '') {
             $exceptions = array_map('intval', explode(';', $IgnoredErrors));
         }
@@ -651,6 +646,7 @@ class BSBLAN extends eqLogic
         } else {
             if (isset($obj_detail["$item_id"]['name'])) {
                 $value = $obj_detail["$item_id"]['value'];
+                // dans le cas d une liste d'options, on prend le libellé de l'option
                 if (isset($obj_detail["$item_id"]['desc'])) {
                     if ($obj_detail["$item_id"]['desc'] != '') {
                         $value = $obj_detail["$item_id"]['desc'];
@@ -660,6 +656,7 @@ class BSBLAN extends eqLogic
                 $eqLogic->checkAndUpdateCmd($_cmd, $value);
                 return true;
             } else {
+                log::add(__PLUGIN__, 'error', sprintf(__('Erreur de lecture du paramètre %1$s %2$s : entrée \'name\' non définie', __FILE__), $item_id, $_cmd->getName()));
                 return false;
             }
         }
@@ -677,7 +674,7 @@ class BSBLAN extends eqLogic
         return $encoded;
     }
 
-    private function compactHtmlText($value)
+    private static function compactHtmlText($value)
     {
         return preg_replace('/\s+/', ' ', strip_tags($value));
     }
@@ -736,8 +733,9 @@ class BSBLANCmd extends cmd
                     $value = $_options['message'];
                     break;
                 default:
-                    log::add(__PLUGIN__, 'info', __('Type d\'action non défini', __FILE__) . ' : ' . $this->getSubType());
-                    die;
+                    $return = __('Type d\'action non défini', __FILE__) . ' : ' . $this->getSubType();
+                    log::add(__PLUGIN__, 'info', $return);
+                    throw new \Exception($return);
                     break;
             }
             $data_string = '';
