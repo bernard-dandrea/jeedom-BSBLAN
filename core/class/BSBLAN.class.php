@@ -1,6 +1,6 @@
 <?php
 
-// Last Modified : 2026/09/02 18:36:22
+// Last Modified : 2026/09/19 15:13:24
 
 /*
  * Copyright (C) 2026 Bernard Dandrea
@@ -29,6 +29,29 @@ class BSBLAN extends eqLogic
         $this->setConfiguration('user', utils::decrypt($this->getConfiguration('user')));
         $this->setConfiguration('password', utils::decrypt($this->getConfiguration('password')));
         $this->setConfiguration('passkey', utils::decrypt($this->getConfiguration('passkey')));
+    }
+
+
+    public static function FormatArrayForLog($value)
+    {
+        $options = JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE;
+        $encoded = json_encode($value, $options);
+
+        if ($encoded === false) {
+            return json_encode((string) $value, $options);
+        }
+
+        return $encoded;
+    }
+
+    private static function compactHtmlText($value)
+    {
+        return preg_replace('/\s+/', ' ', strip_tags($value));
+    }
+
+    public static function compactJsonText($value)
+    {
+        return preg_replace('/\s+/', ' ', $value);
     }
 
     public static function enable_cron($_enable)
@@ -216,7 +239,7 @@ class BSBLAN extends eqLogic
             }
 
             if ($http_code == 200) {
-                log::add(__PLUGIN__, 'debug', 'curl_exec response : http_code ' . $http_code . ' ' . __('réponse', __FILE__) . ' --> ' . self::compactHtmlText($response));
+                // log::add(__PLUGIN__, 'debug', 'curl_exec response : http_code ' . $http_code . ' ' . __('réponse', __FILE__) . ' --> ' . self::compactHtmlText($response));
             } else {
                 if ($http_code == 0) {
                     $return = __('http erreur', __FILE__) . ' : ' . __('Pas de réponse de', __FILE__) . ' ' . $this->getConfiguration('ip') . ' Curl error: ' . curl_error($ch);
@@ -245,7 +268,7 @@ class BSBLAN extends eqLogic
         $json = $this->https_file_get_contents($_api, $json_data);
         if ($json == false)
             return false;
-        log::add(__PLUGIN__, 'debug', __FUNCTION__ . ' ' . __('Requete', __FILE__) . ' ' . $_api . ' json ' . self::compactJsonText($json));
+        log::add(__PLUGIN__, 'debug', __FUNCTION__ . ' ' . __('Requête', __FILE__) . ' ' . $_api . ' json ' . self::compactJsonText($json));
 
         $obj = json_decode($json, TRUE);
         log::add(__PLUGIN__, 'debug', 'Data : ' . self::FormatArrayForLog($obj));
@@ -662,27 +685,6 @@ class BSBLAN extends eqLogic
         }
     }
 
-    public static function FormatArrayForLog($value)
-    {
-        $options = JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE;
-        $encoded = json_encode($value, $options);
-
-        if ($encoded === false) {
-            return json_encode((string) $value, $options);
-        }
-
-        return $encoded;
-    }
-
-    private static function compactHtmlText($value)
-    {
-        return preg_replace('/\s+/', ' ', strip_tags($value));
-    }
-    public static function compactJsonText($value)
-    {
-        return preg_replace('/\s+/', ' ', $value);
-    }
-
     public static function getUniqueCmdName($eqLogicId, $name)
     {
         // teste si le nom de la commande est déjà attribué
@@ -708,7 +710,7 @@ class BSBLANCmd extends cmd
 
         $eqLogic = $this->getEqLogic();
         if (!is_object($eqLogic) || $eqLogic->getIsEnable() != 1) {
-            throw new \Exception(__('Equipement desactivé impossible d\'éxecuter la commande :', __FILE__) . $this->getHumanName());
+            throw new \Exception(__('Equipement désactivé impossible d\'éxecuter la commande :', __FILE__) . $this->getHumanName());
         }
 
         // Refresh toutes les infos
