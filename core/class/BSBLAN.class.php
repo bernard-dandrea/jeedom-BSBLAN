@@ -1,6 +1,6 @@
 <?php
 
-// Last Modified : 2026/09/19 15:13:24
+// Last Modified : 2026/09/22 19:01:53
 
 /*
  * Copyright (C) 2026 Bernard Dandrea
@@ -300,6 +300,8 @@ class BSBLAN extends eqLogic
             log::add(__PLUGIN__, 'info', __FUNCTION__ . ' ' . $return);
             return 'KO ' . $return;
         }
+
+        $return = 'KO';
 
         // lit la description du parametre
         $obj_detail = $this->BSBLAN_api('JC=' . $item_id);
