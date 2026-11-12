@@ -1,6 +1,6 @@
 <?php
 
-// Last Modified : 2026/10/04 18:19:53
+// Last Modified : 2026/11/12 14:17:19
 
 /*
  * Copyright (C) 2026 Bernard Dandrea
@@ -361,7 +361,6 @@ class BSBLAN extends eqLogic
             $cmd->setConfiguration('readwrite', $obj_detail["$item_id"]['readwrite']);
             $dataType = $obj_detail["$item_id"]['dataType'];
             $cmd->setConfiguration('internal_type', $dataType);
-            $cmd->setConfiguration('dataTypename', $obj_detail["$item_id"]['dataTypename']);
             $cmd->setTemplate('dashboard', 'core::line');
             $cmd->setTemplate('mobile', 'core::line');
             $cmd->setUnite($obj_detail["$item_id"]['unit']);
@@ -439,7 +438,6 @@ class BSBLAN extends eqLogic
 
             $dataType = $obj_detail["$item_id"]['dataType'];
             $cmd->setConfiguration('internal_type', $dataType);
-            $cmd->setConfiguration('dataTypename', $obj_detail["$item_id"]['dataTypename']);
 
             $cmd->setType('action');
             $cmd->setSubType('other');
@@ -498,7 +496,6 @@ class BSBLAN extends eqLogic
 
             $dataType = $obj_detail["$item_id"]['dataType'];
             $cmd->setConfiguration('internal_type', $dataType);
-            $cmd->setConfiguration('dataTypename', $obj_detail["$item_id"]['dataTypename']);
 
             $cmd->setType('action');
             switch (true) {
