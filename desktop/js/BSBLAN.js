@@ -1,54 +1,36 @@
-/* This file is part of Jeedom.
-*
-* Jeedom is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Jeedom is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Jeedom. If not, see <http://www.gnu.org/licenses/>.
-*/
+// Last Modified : 2026/08/22 19:57:50
 
-
-
-
-/* Permet la réorganisation des commandes dans l'équipement */
-$("#table_cmd").sortable({
-    axis: "y",
-    cursor: "move",
-    items: ".cmd",
-    placeholder: "ui-state-highlight",
-    tolerance: "intersect",
-    forcePlaceholderSize: true
-})
-
-$("#table_cmd").delegate(".listEquipementInfo", 'click', function () {
-    var el = $(this)
-    jeedom.cmd.getSelectModal({ cmd: { type: 'info' } }, function (result) {
-        var calcul = el.closest('tr').find('.cmdAttr[data-l1key=configuration][data-l2key=' + el.data('input') + ']')
-        calcul.atCaret('insert', result.human)
-    })
-})
-
-$("#table_cmd").delegate(".listEquipementAction", 'click', function () {
-    var el = $(this)
-    var subtype = $(this).closest('.cmd').find('.cmdAttr[data-l1key=subType]').value()
-    jeedom.cmd.getSelectModal({ cmd: { type: 'action', subType: subtype } }, function (result) {
-        var calcul = el.closest('tr').find('.cmdAttr[data-l1key=configuration][data-l2key=' + el.attr('data-input') + ']')
-        calcul.atCaret('insert', result.human);
-    })
-})
+/*
+ * Copyright (C) 2026 Bernard Dandrea
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * https://www.gnu.org/licenses/gpl-3.0.html
+ */
 
 /* Fonction permettant l'affichage des commandes dans l'équipement */
 function addCmdToTable(_cmd) {
 
+    if (document.getElementById('table_cmd') === null) return
+    if (document.querySelector('#table_cmd thead') === null) {
+        let table = '<thead>'
+        table += '<tr>'
+        table += '<th style="min-width:50px;width:70px;">ID</th>'
+        table += '<th>{{Nom}}</th>'
+        table += '<th>logicalID</th>'
+        table += '<th>{{Type}}</th>'
+        table += '<th style="min-width:260px;">{{Options}}</th>'
+        table += '<th>{{Scan}} / {{MAJ}}</th>'
+        table += '<th>{{Valeur}}'
+        table += '</th>'
+        table += '<th style="min-width:80px;width:200px;">{{Actions}}</th>'
+        table += '</tr>'
+        table += '</thead>'
+        table += '<tbody>'
+        table += '</tbody>'
+        document.getElementById('table_cmd').insertAdjacentHTML('beforeend', table)
+    }
+
     if (!isset(_cmd)) {
-        var _cmd = { configuration: {} }
+        _cmd = { configuration: {} }
     }
     if (!isset(_cmd.configuration)) {
         _cmd.configuration = {}
@@ -63,9 +45,11 @@ function addCmdToTable(_cmd) {
     tr += '<span class="input-group-btn"><a class="cmdAction btn btn-sm btn-default" data-l1key="chooseIcon" title="{{Choisir une icône}}"><i class="fas fa-icons"></i></a></span>'
     tr += '<span class="cmdAttr input-group-addon roundedRight" data-l1key="display" data-l2key="icon" style="font-size:19px;padding:0 5px 0 0!important;"></span>'
     tr += '</div>'
-    tr += '<select class="cmdAttr form-control input-sm" data-l1key="value" style="display:none;margin-top:5px;" title="{{Commande info liée}}">'
-    tr += '<option value="">{{Aucune}}</option>'
-    tr += '</select>'
+    if (init(_cmd.type) == 'action' && _cmd.logicalId.startsWith('A_')) {
+        tr += '<select class="hidden-xs cmdAttr form-control input-sm" data-l1key="value" style="display:none;margin-top:5px;" title="{{Commande info liée}}">'
+        tr += '<option value="">{{Aucune}}</option>'
+        tr += '</select>'
+    }
     tr += '</td>'
     tr += '<td>';
     tr += '<input class="cmdAttr form-control input-sm " data-l1key="logicalId" placeholder="{{logicalID}}">'
@@ -78,7 +62,7 @@ function addCmdToTable(_cmd) {
     tr += '<label class="checkbox-inline"><input type="checkbox" class="cmdAttr" data-l1key="isVisible" checked/>{{Afficher}}</label> '
     tr += '<label class="checkbox-inline"><input type="checkbox" class="cmdAttr" data-l1key="isHistorized" checked/>{{Historiser}}</label> '
     tr += '<label class="checkbox-inline"><input type="checkbox" class="cmdAttr" data-l1key="display" data-l2key="invertBinary"/>{{Inverser}}</label> '
-    if (init(_cmd.type) == "info" && is_numeric(init(_cmd.logicalId))) {
+    if (init(_cmd.type) === "info" && is_numeric(init(_cmd.logicalId))) {
         tr += '<label class="checkbox-inline"><input type="checkbox" class="cmdAttr" data-l1key="configuration" data-l2key="isCollected" checked/>{{Update}}</label> ';
     }
 
@@ -90,9 +74,9 @@ function addCmdToTable(_cmd) {
     tr += '</td>'
 
 
-    if (init(_cmd.type) == "info" && is_numeric(init(_cmd.logicalId))) {
+    if (init(_cmd.type) === "info" && is_numeric(init(_cmd.logicalId))) {
         tr += '<td>';
-        tr += '<select id="sel_cron" class="cmdAttr form-control" data-l1key="configuration" data-l2key="cron"> '
+        tr += '<select class="cmdAttr form-control" data-l1key="configuration" data-l2key="cron"> '
         tr += '<option value="none">{{Aucun}}</option> '
         tr += '<option value="cron">{{Toutes les minutes}}</option> '
         tr += '<option value="cron5">{{Toutes les 5 minutes}}</option> '
@@ -100,16 +84,14 @@ function addCmdToTable(_cmd) {
         tr += '<option value="cron15">{{Toutes les 15 minutes}}</option> '
         tr += '<option value="cron30">{{Toutes les 30 minutes}}</option> '
         tr += '<option value="cronHourly">{{Toutes les heures}}</option> '
-        tr += '<option value="cronDaily">{{Toutes les jours}}</option> '
+        tr += '<option value="cronDaily">{{Tous les jours}}</option> '
         tr += '</select> '
         tr += '</td>';
     }
     else {
-        var logicalId = init(_cmd.logicalId);
-
-        if (init(_cmd.type) == "action" && logicalId[0] == 'A') {
+        if (init(_cmd.type) === 'action' && _cmd.logicalId.startsWith('A')) {
             tr += '<td>';
-            tr += '<select id="sel_cron" class="cmdAttr form-control" data-l1key="configuration" data-l2key="set_method"> '
+            tr += '<select class="cmdAttr form-control" data-l1key="configuration" data-l2key="set_method"> '
             tr += '<option value="">{{Defaut}}</option> '
             tr += '<option value="JSON">{{via JSON}}</option> '
             tr += '<option value="Set">{{via /S}}</option> '
@@ -131,163 +113,158 @@ function addCmdToTable(_cmd) {
     }
     tr += '<i class="fas fa-minus-circle pull-right cmdAction cursor" data-action="remove" title="{{Supprimer la commande}}"></i></td>'
     tr += '</tr>'
-    $('#table_cmd tbody').append(tr)
-    var tr = $('#table_cmd tbody tr').last()
-    jeedom.eqLogic.buildSelectCmd({
-        id: $('.eqLogicAttr[data-l1key=id]').value(),
-        filter: { type: 'info' },
-        error: function (error) {
-            $('#div_alert').showAlert({ message: error.message, level: 'danger' })
-        },
-        success: function (result) {
-            tr.find('.cmdAttr[data-l1key=value]').append(result)
-            tr.setValues(_cmd, '.cmdAttr')
-            jeedom.cmd.changeType(tr, init(_cmd.subType))
-        }
-    })
-}
 
+    const temp = document.createElement('tbody')
+    temp.innerHTML = tr
+    const newRow = temp.firstElementChild
+    document.querySelector('#table_cmd tbody').appendChild(newRow)
 
-function printEqLogic(_eqLogic) {
-
-    $BSBLANtype = _eqLogic.configuration.type;
-}
-
-$('#bt_gotoBSBLAN').on('click', function () {
-    $('#md_modal').dialog({ title: "{{Accèder à l'interface du BSBLAN}}" });
-    var url = 'http://' + $('.eqLogicAttr[data-l2key=ip]').value() + '/'
-    if ($('.eqLogicAttr[data-l2key=passkey]').value() != '') {
-        url += $('.eqLogicAttr[data-l2key=passkey]').value() + '/'
+    const valueField = newRow.querySelector('.cmdAttr[data-l1key="value"]')
+    if (valueField) {
+        jeedom.eqLogic.buildSelectCmd({
+            id: document.querySelector('.eqLogicAttr[data-l1key="id"]').jeeValue(),
+            filter: { type: 'info' },
+            error: function (error) {
+                jeedomUtils.showAlert({ message: error.message, level: 'danger' })
+            },
+            success: function (result) {
+                // comme la fonction est executée en asynchrone, il est nécessaire de faire les mises à jour des commandes dans le success
+                valueField.insertAdjacentHTML('beforeend', result)
+                newRow.setJeeValues(_cmd, '.cmdAttr')
+                jeedom.cmd.changeType(newRow, init(_cmd.subType))
+            }
+        })
+    } else {
+        // evite de lire les commandes info à chaque fois
+        newRow.setJeeValues(_cmd, '.cmdAttr')
+        jeedom.cmd.changeType(newRow, init(_cmd.subType))
     }
-    window.open(url)
+}
+
+document.getElementById('bt_gotoBSBLAN').addEventListener('click', function () {
+
+    var ipElem = document.querySelector('.eqLogicAttr[data-l2key=ip]');
+    var ip = (ipElem ? ipElem.jeeValue() : '').trim();
+    if (!ip) {
+        return;
+    }
+    var passkeyElem = document.querySelector('.eqLogicAttr[data-l2key=passkey]');
+    var passkey = (passkeyElem ? passkeyElem.jeeValue() : '').trim();
+
+    var url = 'http://' + ip + '/';
+    if (passkey !== '')
+        url += passkey + '/'
+    window.open(url);
 });
 
 
-$('#bt_TestConnexionBSBLAN').on('click', function () {
-    $.ajax({// fonction permettant de faire de l'ajax
-        type: "POST", // methode de transmission des données au fichier php
-        url: "plugins/BSBLAN/core/ajax/BSBLAN.ajax.php", // url du fichier php
-        // LA FONCTION create_command DOIT ETRE DEFINIE DANS LE FICHIER CI-DESSUS
+document.querySelector('#bt_TestConnexionBSBLAN').addEventListener('click', function () {
+
+    var eqLogicId = document.querySelector('.eqLogicAttr[data-l1key="id"]').jeeValue();
+
+    var paramsAJAX = {
+        type: "POST",
+        url: 'plugins/BSBLAN/core/ajax/BSBLAN.ajax.php',
         data: {
-            action: "test_connexion",
-            id: $('.eqLogicAttr[data-l1key=id]').value(),
+            action: 'test_connexion',
+            id: eqLogicId
         },
         dataType: 'json',
         error: function (request, status, error) {
-            handleAjaxError(request, status, $('#div_DetectBin'));
+            handleAjaxError(request, status, error)
         },
-        success: function (data) { // si l'appel a bien fonctionné
-            if (data.state != 'ok') {
-                $('#div_alert').showAlert({ message: data.result, level: 'danger' });
-                return;
+        success: function (data) {
+            var message = String(data.result || '');
+            var level = 'success';
+            if (message.startsWith('KO')) {
+                level = 'warning';
             }
-            // window.location.reload();  // si on recharge la fenetre, on perd le message envoyé par test_connexion
+            if (message.length >= 4) {
+                message = message.substring(3);
+            }
+
+            jeedomUtils.showAlert({
+                message: message,
+                level: level
+            })
         }
-    });
+    }
+    domUtils.ajax(paramsAJAX);
 });
 
-$("#table_cmd").sortable({ axis: "y", cursor: "move", items: ".cmd", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true });
+function createCommandFromPrompt(options) {
+    var eqLogicId = document.querySelector('.eqLogicAttr[data-l1key="id"]').jeeValue();
 
+    jeeDialog.prompt({
+        message: '{{Paramètre ?}}'
+    },
+        function (result) {
+            if (typeof result !== 'string' || result.trim() === '') {
+                return
+            }
 
-$('#bt_create_info_command').on('click', function () {
-
-    bootbox.prompt('{{Numéro du paramètre}}' + ' ?', function (result) {
-
-        if (result !== null && result != '') {
-
-            $.ajax({// fonction permettant de faire de l'ajax
-                type: "POST", // methode de transmission des données au fichier php
-                url: "plugins/BSBLAN/core/ajax/BSBLAN.ajax.php", // url du fichier php
-                // LA FONCTION create_command DOIT ETRE DEFINIE DANS LE FICHIER CI-DESSUS
+            var paramsAJAX = {
+                type: "POST",
+                url: 'plugins/BSBLAN/core/ajax/BSBLAN.ajax.php',
                 data: {
                     action: "create_command",
-                    id: $('.eqLogicAttr[data-l1key=id]').value(),
+                    id: eqLogicId,
                     id_commande: result,
-                    _info: 'X',
-                    _action: '',
-                    _refresh: '',
+                    _info: options._info || '',
+                    _action: options._action || '',
+                    _refresh: options._refresh || '',
                 },
                 dataType: 'json',
                 error: function (request, status, error) {
-                    handleAjaxError(request, status, $('#div_DetectBin'));
+                    handleAjaxError(request, status, error)
                 },
-                success: function (data) { // si l'appel a bien fonctionné
-                    if (data.state != 'ok') {
-                        $('#div_alert').showAlert({ message: data.result, level: 'danger' });
-                        return;
+                success: function (data) {
+                    if (data.state !== 'ok') {
+                        jeedomUtils.showAlert({
+                            message: data.result,
+                            level: 'danger'
+                        })
+                        return
                     }
-                    window.location.reload();
+
+                    var message = String(data.result || '');
+                    var level = 'success';
+                    if (message.startsWith('KO')) {
+                        level = 'warning';
+
+                    }
+                    if (message.length >= 4) {
+                        message = message.substring(3);
+                    }
+                    jeedomUtils.showAlert({
+                        message: message,
+                        level: level
+                    })
+
+                    if (level === 'success')
+                        setTimeout(function () {
+                            location.reload()
+                        }, 3000)
                 }
-            });
-        }
+            }
+            domUtils.ajax(paramsAJAX);
+        })
+}
+
+document.querySelector('#bt_create_info_command').addEventListener('click', function () {
+    createCommandFromPrompt({
+        _info: 'X'
     });
 });
 
-$('#bt_create_action_command').on('click', function () {
-
-    bootbox.prompt('{{Numéro du paramètre}}' + ' ?', function (result) {
-
-        if (result !== null && result != '') {
-
-            $.ajax({// fonction permettant de faire de l'ajax
-                type: "POST", // methode de transmission des données au fichier php
-                url: "plugins/BSBLAN/core/ajax/BSBLAN.ajax.php", // url du fichier php
-                // LA FONCTION create_command DOIT ETRE DEFINIE DANS LE FICHIER CI-DESSUS
-                data: {
-                    action: "create_command",
-                    id: $('.eqLogicAttr[data-l1key=id]').value(),
-                    id_commande: result,
-                    _info: '',
-                    _action: 'X',
-                    _refresh: '',
-                },
-                dataType: 'json',
-                error: function (request, status, error) {
-                    handleAjaxError(request, status, $('#div_DetectBin'));
-                },
-                success: function (data) { // si l'appel a bien fonctionné
-                    if (data.state != 'ok') {
-                        $('#div_alert').showAlert({ message: data.result, level: 'danger' });
-                        return;
-                    }
-                    window.location.reload();
-                }
-            });
-        }
+document.querySelector('#bt_create_action_command').addEventListener('click', function () {
+    createCommandFromPrompt({
+        _action: 'X'
     });
 });
 
-
-$('#bt_create_refresh_command').on('click', function () {
-
-    bootbox.prompt('{{Numéro du paramètre}}' + ' ?', function (result) {
-
-        if (result !== null && result != '') {
-
-            $.ajax({// fonction permettant de faire de l'ajax
-                type: "POST", // methode de transmission des données au fichier php
-                url: "plugins/BSBLAN/core/ajax/BSBLAN.ajax.php", // url du fichier php
-                // LA FONCTION create_command DOIT ETRE DEFINIE DANS LE FICHIER CI-DESSUS
-                data: {
-                    action: "create_command",
-                    id: $('.eqLogicAttr[data-l1key=id]').value(),
-                    id_commande: result,
-                    _info: '',
-                    _action: '',
-                    _refresh: 'X',
-                },
-                dataType: 'json',
-                error: function (request, status, error) {
-                    handleAjaxError(request, status, $('#div_DetectBin'));
-                },
-                success: function (data) { // si l'appel a bien fonctionné
-                    if (data.state != 'ok') {
-                        $('#div_alert').showAlert({ message: data.result, level: 'danger' });
-                        return;
-                    }
-                    window.location.reload();
-                }
-            });
-        }
+document.querySelector('#bt_create_refresh_command').addEventListener('click', function () {
+    createCommandFromPrompt({
+        _refresh: 'X'
     });
 });

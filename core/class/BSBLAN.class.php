@@ -1,25 +1,15 @@
 <?php
 
-// Last Modified : 2026/07/21 16:04:00
+// Last Modified : 2026/11/12 14:17:19
 
-/* This file is part of Jeedom.
- *
- * Jeedom is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Jeedom is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Jeedom. If not, see <http://www.gnu.org/licenses/>.
+/*
+ * Copyright (C) 2026 Bernard Dandrea
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-/* * ***************************Includes********************************* */
 require_once dirname(__FILE__) . '/../../../../core/php/core.inc.php';
+
 
 class BSBLAN extends eqLogic
 {
@@ -38,36 +28,58 @@ class BSBLAN extends eqLogic
         $this->setConfiguration('passkey', utils::decrypt($this->getConfiguration('passkey')));
     }
 
+
+    public static function FormatArrayForLog($value)
+    {
+        $options = JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE;
+        $encoded = json_encode($value, $options);
+
+        if ($encoded === false) {
+            return json_encode((string) $value, $options);
+        }
+
+        return $encoded;
+    }
+
+    private static function compactHtmlText($value)
+    {
+        return preg_replace('/\s+/', ' ', strip_tags($value));
+    }
+
+    public static function compactJsonText($value)
+    {
+        return preg_replace('/\s+/', ' ', $value);
+    }
+
     public static function enable_cron($_enable)
     {
-        $cron_BSBLAN = cron::byClassAndFunction('BSBLAN', 'update');
+        $cron = cron::byClassAndFunction(__CLASS__, 'update');
         $schedule = '* * * * *';
         if ($_enable == '1') {
-            log::add('BSBLAN', 'debug', __('Activation du cron de BSBLAN', __FILE__));
-            if (!is_object($cron_BSBLAN)) {
-                $cron_BSBLAN = new cron();
-                $cron_BSBLAN->setClass('BSBLAN');
-                $cron_BSBLAN->setFunction('update');
-                $cron_BSBLAN->setEnable(1);
-                $cron_BSBLAN->setDeamon(0);
-                $cron_BSBLAN->setSchedule($schedule);
-                $cron_BSBLAN->setTimeout(1);
+            log::add(__CLASS__, 'debug', sprintf(__('Activation du cron de %1$s', __FILE__), __CLASS__));
+            if (!is_object($cron)) {
+                $cron = new cron();
+                $cron->setClass(__CLASS__);
+                $cron->setFunction('update');
+                $cron->setEnable(1);
+                $cron->setDeamon(0);
+                $cron->setSchedule($schedule);
+                $cron->setTimeout(1);
             } else {
-                $cron_BSBLAN->setEnable(1);
+                $cron->setEnable(1);
             }
-            $cron_BSBLAN->save();
+            $cron->save();
         } else {
-            log::add('BSBLAN', 'debug', __('Désactivation du cron de BSBLAN', __FILE__));
-            if (is_object($cron_BSBLAN)) {
-                $cron_BSBLAN->remove();
+            log::add(__CLASS__, 'debug', sprintf(__('Désactivation du cron de %1$s', __FILE__), __CLASS__));
+            if (is_object($cron)) {
+                $cron->remove();
             }
         }
     }
 
-
     public function test_connexion()
     {
-        log::add('BSBLAN', 'info', __('test_connexion ', __FILE__));
+        log::add(__CLASS__, 'info', __FUNCTION__ . ' ' . $this->getName());
 
         $ip = $this->getConfiguration('ip');
         $url_api = 'http://' . $ip . '/';
@@ -76,7 +88,7 @@ class BSBLAN extends eqLogic
             $url_api = $url_api . $passkey . '/';
         }
         $url_api = $url_api . 'JI';
-        log::add('BSBLAN', 'debug', __('https_file_get_contents ', __FILE__) . '  url_api ' . $url_api);
+        log::add(__CLASS__, 'debug', __FUNCTION__ . '  url_api ' . $url_api);
 
         $user = $this->getConfiguration('user');
         $password = $this->getConfiguration('password');
@@ -87,90 +99,63 @@ class BSBLAN extends eqLogic
         $ch = curl_init();
         try {
             curl_setopt($ch, CURLOPT_URL, $url_api);
-
             curl_setopt($ch, CURLOPT_HEADER, false);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_NOSIGNAL, 1);
 
             $timeout = $this->getConfiguration('timeout', '15');
             if (is_numeric($timeout)) {
-                curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
-                curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+                curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, (int)$timeout);
+                curl_setopt($ch, CURLOPT_TIMEOUT, (int)$timeout);
             }
 
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
             curl_setopt($ch, CURLOPT_MAXREDIRS, 1);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-            curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+
             if ($user != "") {
+                curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
                 curl_setopt($ch, CURLOPT_USERPWD, $userpassword);
             }
-            $response = curl_exec($ch);
 
+            $response = curl_exec($ch);
             $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
-            if ($http_code == intval(200)) {
+            if ($http_code == 200) {
                 $obj = json_decode($response, TRUE);
-                log::add('BSBLAN', 'debug', 'curl_exec response : $http_code ' . $http_code . ' response ' . $response);
-
+                log::add(__CLASS__, 'debug', 'curl_exec response : http_code ' . $http_code . ' response ' . self::FormatArrayForLog($response));
                 if (isset($obj['version'])) {
-
-                    log::add('BSBLAN', 'debug', 'Connexion OK : version de BSB-LAN ' . $obj['version']);
-
-                    event::add(
-                        'jeedom::alert',
-                        array(
-                            'level' => 'success',
-                            'page' => 'BSBLAN',
-                            'message' => __('Connexion OK : version de BSB-LAN ' . $obj['version'], __FILE__),
-                        )
-                    );
+                    $return = __('Connexion OK : version de BSB-LAN', __FILE__) . ' ' . $obj['version'];
+                    log::add(__CLASS__, 'debug', $return);
+                    return 'OK ' . $return;
                 } else {
-
-                    log::add('BSBLAN', 'debug', 'Connexion KO : pas un BSBLAN');
-                    event::add(
-                        'jeedom::alert',
-                        array(
-                            'level' => 'warning',
-                            'page' => 'BSBLAN',
-                            'message' => __('Connexion KO : pas un BSBLAN', __FILE__),
-                        )
-                    );
+                    $return = __('Connexion KO : pas un BSBLAN', __FILE__);
+                    log::add(__CLASS__, 'debug', $return);
+                    return 'KO ' . $return;
                 }
             } else {
-
-                if ($http_code == intval(0)) {
-                    log::add('BSBLAN', 'debug', 'No answer from ' . $this->getConfiguration('ip'));
-                    event::add(
-                        'jeedom::alert',
-                        array(
-                            'level' => 'error',
-                            'page' => 'BSBLAN',
-                            'message' => __('Connexion KO : erreur http ' . $http_code . ' No answer from ' . $this->getConfiguration('ip'), __FILE__),
-                        )
-                    );
+                if ($http_code == 0) {
+                    $return = __('Connexion KO : erreur http', __FILE__) . ' ' . $http_code . ' ' . __('Pas de réponse de', __FILE__) . ' ' . $this->getConfiguration('ip') . ' Curl error: ' . curl_error($ch);
+                    log::add(__CLASS__, 'debug', $return);
+                    return 'KO ' . $return;
                 } else {
-                    log::add('BSBLAN', 'debug', 'curl_exec http error ' . $http_code);
-                    event::add(
-                        'jeedom::alert',
-                        array(
-                            'level' => 'error',
-                            'page' => 'BSBLAN',
-                            'message' => __('Connexion KO : erreur http ' . $http_code . ' response --> ' . strip_tags($response), __FILE__),
-                        )
-                    );
+                    $return = __('Connexion KO : erreur http', __FILE__) . ' ' . $http_code . ' response --> ' . self::compactHtmlText($response);
+                    log::add(__CLASS__, 'debug', $return);
+                    return 'KO ' . $return;
                 }
             }
-        } catch (\Throwable $th) {
-            throw $th;
+        } catch (\Throwable $e) {
+            $return = __('Connexion KO : exception', __FILE__) .  ' ' . $e->getCode() . ' ' . $e->getMessage();
+            return 'KO ' . $return;
         } finally {
             curl_close($ch);
         }
     }
 
-
     public function https_file_get_contents($url, $json_data = '')
     {
-        log::add('BSBLAN', 'info', __('https_file_get_contents ', __FILE__) . '  url ' . $url . ' json ' . $json_data);
+        log::add(__CLASS__, 'info', __FUNCTION__ . '  url ' . $url . ' json ' . $json_data);
 
         $ip = $this->getConfiguration('ip');
         $url_api = 'http://' . $ip . '/';
@@ -179,7 +164,7 @@ class BSBLAN extends eqLogic
             $url_api = $url_api . $passkey . '/';
         }
         $url_api = $url_api . $url;
-        log::add('BSBLAN', 'debug', __('https_file_get_contents ', __FILE__) . '  url_api ' . $url_api);
+        log::add(__CLASS__, 'debug', __FUNCTION__ . '  url_api ' . $url_api);
 
         $user = $this->getConfiguration('user');
         $password = $this->getConfiguration('password');
@@ -189,69 +174,84 @@ class BSBLAN extends eqLogic
 
         $ch = curl_init();
         try {
-            curl_setopt($ch, CURLOPT_URL, $url_api);
 
+            // Options de base
+            curl_setopt($ch, CURLOPT_URL, $url_api);
             curl_setopt($ch, CURLOPT_HEADER, false);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
+            // Recommandé pour éviter les crashs liés aux requêtes asynchrones en PHP
+            curl_setopt($ch, CURLOPT_NOSIGNAL, 1);
+
+            // Gestion du Timeout
             $timeout = $this->getConfiguration('timeout', '15');
             if (is_numeric($timeout)) {
-                curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
-                curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+                curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, (int)$timeout);
+                curl_setopt($ch, CURLOPT_TIMEOUT, (int)$timeout);
             }
 
+            // Gestion des redirections et du SSL (adapté pour l'IoT local)
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
             curl_setopt($ch, CURLOPT_MAXREDIRS, 1);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-            curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+
+            // Gestion de l'authentification
             if ($user != "") {
+                curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
                 curl_setopt($ch, CURLOPT_USERPWD, $userpassword);
             }
+
+            // Gestion du payload JSON (si présent)
             if ($json_data != '') {
-                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-                curl_setopt($ch, CURLOPT_POSTFIELDS, array("customer" => $json_data));
-                curl_setopt($ch, CURLOPT_HEADER, true);
-                curl_setopt(
-                    $ch,
-                    CURLOPT_HTTPHEADER,
-                    array(
-                        'Content-Type:application/json',
-                        'Content-Length: ' . strlen($json_data)
-                    )
-                );
+                curl_setopt($ch, CURLOPT_POST, true);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $json_data);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                    'Content-Type: application/json'
+                    // Le Content-Length est calculé automatiquement par cURL
+                ));
             }
-            $retry = $this->getConfiguration('retry', '3');
-            if (is_numeric($retry) == false) {
-                $retry = 3;
-            } else {
-                if ($retry <= 0) {
-                    $retry = 1;
-                }
+
+            // Gestion du payload JSON (si présent)
+            if ($json_data != '') {
+                curl_setopt($ch, CURLOPT_POST, true);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $json_data);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                    'Content-Type: application/json'
+                    // Le Content-Length est calculé automatiquement par cURL
+                ));
             }
+
+            $retry_config = $this->getConfiguration('retry', 3);
+            $retry = is_numeric($retry_config) ? max(1, (int)$retry_config) : 3;
             $essai = 0;
             while ($essai < $retry) {
                 $response = curl_exec($ch);
                 $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                if ($http_code == intval(200)) {
+                if ($http_code == 200) {
                     break;
                 }
-                log::add('BSBLAN', 'warning', 'curl_exec response : http_code ' . $http_code . ' Curl error: ' . curl_error($ch) . ' -> nouvel essai');
-                $essai = $essai + 1;
+                log::add(__CLASS__, 'warning', 'curl_exec response : http_code ' . $http_code . ' Curl ' . __('erreur', __FILE__) . ': ' . curl_error($ch) . ' -> ' . __('nouvel essai', __FILE__));
+                $essai++;
             }
 
-            if ($http_code == intval(200)) {
-                log::add('BSBLAN', 'debug', 'curl_exec response : http_code ' . $http_code . ' response --> ' . strip_tags($response));
+            if ($http_code == 200) {
+                // log::add(__CLASS__, 'debug', 'curl_exec response : http_code ' . $http_code . ' ' . __('réponse', __FILE__) . ' --> ' . self::compactHtmlText($response));
             } else {
-                if ($http_code == intval(0)) {
-                    log::add('BSBLAN', 'debug', 'No answer from ' . $this->getConfiguration('ip'));
-                    throw new \Exception(__('BSBLAN http error : ', __FILE__) . 'No answer from ' . $this->getConfiguration('ip') . ' Curl error: ' . curl_error($ch));
+                if ($http_code == 0) {
+                    $return = __('http erreur', __FILE__) . ' : ' . __('Pas de réponse de', __FILE__) . ' ' . $this->getConfiguration('ip') . ' Curl error: ' . curl_error($ch);
+                    log::add(__CLASS__, 'error', $return);
+                    return false;
                 } else {
-                    log::add('BSBLAN', 'debug', 'curl_exec http error ' . $http_code);
-                    throw new \Exception(__('BSBLAN http error : ', __FILE__) . $http_code . ' response --> ' . strip_tags($response));
+                    $return = __('http erreur', __FILE__) . ' : ' . $http_code . ' ' . __('réponse', __FILE__) . ' --> ' . self::compactHtmlText($response);
+                    log::add(__CLASS__, 'debug', $return);
+                    return false;
                 }
             }
-        } catch (\Throwable $th) {
-            throw $th;
+        } catch (\Throwable $e) {
+            $return = __('http exception', __FILE__) .  ' ' . $e->getCode() . ' ' . $e->getMessage();
+            log::add(__CLASS__, 'debug', $return);
+            return false;
         } finally {
             curl_close($ch);
         }
@@ -260,54 +260,58 @@ class BSBLAN extends eqLogic
 
     function BSBLAN_api($_api, $json_data = '')
     {
-        log::add('BSBLAN', 'debug', 'Execute BSBLAN_api  url ' . $_api . ' json ' . $json_data);
-
-        $statuscmd = $this->getCmd(null, 'status');
-
+        log::add(__CLASS__, 'debug', __FUNCTION__ . ' url ' . $_api . ' json ' . $json_data);
 
         $json = $this->https_file_get_contents($_api, $json_data);
-        log::add('BSBLAN', 'debug', 'Request ' . $_api, ' json ' . $json);
+        if ($json == false)
+            return false;
+        log::add(__CLASS__, 'debug', __FUNCTION__ . ' ' . __('Requête', __FILE__) . ' ' . $_api . ' json ' . self::compactJsonText($json));
 
         $obj = json_decode($json, TRUE);
-        log::add('BSBLAN', 'debug', 'Detail data : ' . print_r($obj, true));
+        log::add(__CLASS__, 'debug', 'Data : ' . self::FormatArrayForLog($obj));
 
         return $obj;
     }
 
     public function create_command($id_commande, $info, $action, $refresh)
     {
-        log::add('BSBLAN', 'info', __('create_command', __FILE__) . ' ' . $this->name . ' Commande ' . $id_commande . ' Info ' . $info . ' Action ' . $action . ' Refresh ' . $refresh);
+        log::add(__CLASS__, 'info', __FUNCTION__ . ' ' . $this->getName() . ' ' . __('Commande', __FILE__) . ' ' . $id_commande . ' Info ' . $info . ' Action ' . $action . ' Refresh ' . $refresh);
 
-        //    $carte->getSessionId();
         if ($info != '') {
-            $this->create_info_command($id_commande);
+            $return = $this->create_info_command($id_commande);
         }
         if ($action != '') {
-            $this->create_action_command($id_commande);
+            $return = $this->create_action_command($id_commande);
         }
         if ($refresh != '') {
-            $this->create_refresh_command($id_commande);
+            $return = $this->create_refresh_command($id_commande);
         }
+        return $return;
     }
 
     private function create_info_command($item_id)
     // crée la commande type info
     {
-        if (is_object(cmd::byEqLogicIdAndLogicalId($this->id, $item_id))) {
-            log::add('BSBLAN', 'info', __('create_info_command ', __FILE__) . $this->name . '  commande déjà créée ' . $item_id);
-            return '0';
+        if (is_object(cmd::byEqLogicIdAndLogicalId($this->getId(), $item_id))) {
+            $return = $this->getName() . '  ' . __('commande info déjà créée', __FILE__) . ' ' . $item_id;
+            log::add(__CLASS__, 'info', __FUNCTION__ . ' ' . $return);
+            return 'KO ' . $return;
         }
 
-        // lit la description du datapoint
-        $obj_detail = $this->BSBLAN_api('JC=' . $item_id);
+        $return = 'KO';
 
+        // lit la description du parametre
+        $obj_detail = $this->BSBLAN_api('JC=' . $item_id);
+        if ($obj_detail == false) {
+            return 'KO ' . __('Erreur accès BSBLAN', __FILE__);
+        }
         if (isset($obj_detail["$item_id"]['name'])) {
 
             $name = $item_id . ' ' . str_replace(array('&', '#', ']', '[', '%', "'"), ' ', $obj_detail["$item_id"]['name']);
             if ($name == '') {
                 $name = $item_id;
             }
-            log::add('BSBLAN', 'info', __('create_info_command ', __FILE__) . $this->name . '  création commande ' . $name);
+            log::add(__CLASS__, 'info', __FUNCTION__ . ' ' . $this->getName() . ' ' . __('création commande', __FILE__) . ' ' . $name);
 
             $cmd = new BSBLANCmd();
 
@@ -315,18 +319,8 @@ class BSBLAN extends eqLogic
             $cmd->setName($name);
             $name = $cmd->getName();
 
-            // teste si le nom de la commande est déjà attribué
-            // si oui, ajoute à la fin un numéro afin d'avoir un nom unique
-            if (is_object(cmd::byEqLogicIdCmdName($this->id, $name))) {
-                $count = 1;
-                while (is_object(cmd::byEqLogicIdCmdName($this->id, substr($name, 0, 100) . "..." . $count))) {
-                    $count++;
-                }
-                $cmd->setName(substr($name, 0, 100) . "..." . $count);
-                log::add('BSBLAN', 'info', 'Rename as ' . substr($name, 0, 100) . "..." . $count);
-            } else {
-                $cmd->setName($name);
-            }
+            $cmd->setName(self::getUniqueCmdName($this->getId(), $name));
+
             /*
              http://<ip-address>/JQ
              Send: "Parameter"
@@ -356,7 +350,7 @@ class BSBLAN extends eqLogic
             */
             // crée la commande de type INFO
             $cmd->setEqLogic_id($this->getId());
-            $cmd->setLogicalId($item_id); // le logical id est égal à l'id du datapoint
+            $cmd->setLogicalId($item_id); // le logical id est égal à l'id du parametre
             $cmd->setConfiguration('infoId', $item_id);
             $cmd->setIsVisible(1);
             $cmd->setConfiguration('isPrincipale', '0');
@@ -367,7 +361,6 @@ class BSBLAN extends eqLogic
             $cmd->setConfiguration('readwrite', $obj_detail["$item_id"]['readwrite']);
             $dataType = $obj_detail["$item_id"]['dataType'];
             $cmd->setConfiguration('internal_type', $dataType);
-            $cmd->setConfiguration('dataTypename', $obj_detail["$item_id"]['dataTypename']);
             $cmd->setTemplate('dashboard', 'core::line');
             $cmd->setTemplate('mobile', 'core::line');
             $cmd->setUnite($obj_detail["$item_id"]['unit']);
@@ -397,7 +390,9 @@ class BSBLAN extends eqLogic
             }
 
             $cmd->save();
-        } else {
+            $return = __('Commande info créée', __FILE__) . ' ' . $item_id;
+            log::add(__CLASS__, 'debug', __FUNCTION__ . ' ' . $return);
+            return 'OK ' . $return;
         }
     }
 
@@ -405,14 +400,17 @@ class BSBLAN extends eqLogic
     // crée la commande type refresh
     {
 
-        if (is_object(cmd::byEqLogicIdAndLogicalId($this->id, 'R_' . $item_id))) {
-            log::add('BSBLAN', 'info', __('create_refresh_command ', __FILE__) . $this->name . '  commande refresh déjà créée ' . 'R_' . $item_id);
-            return '0';
+        if (is_object(cmd::byEqLogicIdAndLogicalId($this->getId(), 'R_' . $item_id))) {
+            $return = $this->getName() . '  ' . __('commande refresh déjà créée', __FILE__) . ' ' . $item_id;
+            log::add(__CLASS__, 'info', __FUNCTION__ . ' ' . $return);
+            return 'KO ' . $return;
         }
 
-        // lit la description du datapoint
+        // lit la description du parametre
         $obj_detail = $this->BSBLAN_api('JC=' . $item_id);
-
+        if ($obj_detail == false) {
+            return 'KO ' . __('Erreur accès BSBLAN', __FILE__);
+        }
         if (isset($obj_detail["$item_id"]['name'])) {
 
             $name = $item_id . ' ' . str_replace(array('&', '#', ']', '[', '%', "'"), ' ', $obj_detail["$item_id"]['name']);
@@ -422,7 +420,7 @@ class BSBLAN extends eqLogic
 
             $name = $name . ' Refresh';
 
-            log::add('BSBLAN', 'info', __('create_refresh_command ', __FILE__) . $this->name . '  création commande ' . $name);
+            log::add(__CLASS__, 'info', __FUNCTION__ . ' ' . $this->getName() . '  ' . __('création commande', __FILE__) . ' ' . $name);
 
             $cmd = new BSBLANCmd();
 
@@ -430,27 +428,24 @@ class BSBLAN extends eqLogic
             $cmd->setName($name);
             $name = $cmd->getName();
 
-            // teste si le nom de la commande est déjà attribué    
-            // si oui, ajoute à la fin un numéro afin d'avoir un nom unique
-            if (is_object(cmd::byEqLogicIdCmdName($this->id, $name))) {
-                $count = 1;
-                while (is_object(cmd::byEqLogicIdCmdName($this->id, substr($name, 0, 100) . "..." . $count))) {
-                    $count++;
-                }
-                $cmd->setName(substr($name, 0, 100) . "..." . $count);
-                log::add('BSBLAN', 'info', 'Rename as ' . substr($name, 0, 100) . "..." . $count);
-            } else {
-                $cmd->setName($name);
-            }
+            $cmd->setName(self::getUniqueCmdName($this->getId(), $name));
+
             $cmd->setEqLogic_id($this->getId());
-            $cmd->setLogicalId('R_' . $item_id); // le logical id est égal à 'R_' plus l'id du datapoint
+            $cmd->setLogicalId('R_' . $item_id); // le logical id est égal à 'R_' plus l'id du parametre
             $cmd->setConfiguration('infoId', $item_id);
             $cmd->setIsVisible(1);
             $cmd->setOrder(time());
-            $cmd->setConfiguration('internal_type', $type);
+
+            $dataType = $obj_detail["$item_id"]['dataType'];
+            $cmd->setConfiguration('internal_type', $dataType);
+
             $cmd->setType('action');
             $cmd->setSubType('other');
             $cmd->save();
+
+            $return = __('Commande refresh', __FILE__) . ' ' . $item_id;
+            log::add(__CLASS__, 'debug', __FUNCTION__ . ' ' . $return);
+            return 'OK ' . $return;
         }
     }
 
@@ -459,15 +454,17 @@ class BSBLAN extends eqLogic
     // crée la commande type action
     {
 
-        if (is_object(cmd::byEqLogicIdAndLogicalId($this->id, 'A_' . $item_id))) {
-            log::add('BSBLAN', 'info', __('create_action_command ', __FILE__) . $this->name . '  commande action déjà créée ' . 'A_' . $item_id);
-            return '0';
+        if (is_object(cmd::byEqLogicIdAndLogicalId($this->getId(), 'A_' . $item_id))) {
+            $return = $this->getName() . '  ' . __('commande action déjà créée', __FILE__) . ' ' . $item_id;
+            log::add(__CLASS__, 'info', __FUNCTION__ . ' ' . $return);
+            return 'KO ' . $return;
         }
 
-
-        // lit la description du datapoint
+        // lit la description du parametre
         $obj_detail = $this->BSBLAN_api('JC=' . $item_id);
-
+        if ($obj_detail == false) {
+            return 'KO ' . __('Erreur accès BSBLAN', __FILE__);
+        }
         if (isset($obj_detail["$item_id"]['name'])) {
 
             $name = $item_id . ' ' . str_replace(array('&', '#', ']', '[', '%', "'"), ' ', $obj_detail["$item_id"]['name']);
@@ -477,7 +474,7 @@ class BSBLAN extends eqLogic
 
             $name = $name . ' Action';
 
-            log::add('BSBLAN', 'info', __('create_action_command ', __FILE__) . $this->name . '  création commande ' . $name);
+            log::add(__CLASS__, 'info', __FUNCTION__ . ' ' . $this->getName() . '  ' . __('création commande', __FILE__) . ' ' . $name);
 
             $cmd = new BSBLANCmd();
 
@@ -485,24 +482,13 @@ class BSBLAN extends eqLogic
             $cmd->setName($name);
             $name = $cmd->getName();
 
-            // teste si le nom de la commande est déjà attribué    
-            // si oui, ajoute à la fin un numéro afin d'avoir un nom unique
-            if (is_object(cmd::byEqLogicIdCmdName($this->id, $name))) {
-                $count = 1;
-                while (is_object(cmd::byEqLogicIdCmdName($this->id, substr($name, 0, 100) . "..." . $count))) {
-                    $count++;
-                }
-                $cmd->setName(substr($name, 0, 100) . "..." . $count);
-                log::add('BSBLAN', 'info', 'Rename as ' . substr($name, 0, 100) . "..." . $count);
-            } else {
-                $cmd->setName($name);
-            }
+            $cmd->setName(self::getUniqueCmdName($this->getId(), $name));
 
             $cmd->setEqLogic_id($this->getId());
-            $cmd->setLogicalId('A_' . $item_id); // le logical id est égal à 'A_' plus l'id du datapoint
+            $cmd->setLogicalId('A_' . $item_id); // le logical id est égal à 'A_' plus l'id du parametre
             $cmd->setConfiguration('infoId', $item_id);
             $cmd->setIsVisible(1);
-            $cmd_info = cmd::byEqLogicIdAndLogicalId($this->id, $item_id);
+            $cmd_info = cmd::byEqLogicIdAndLogicalId($this->getId(), $item_id);
             if (is_object($cmd_info)) {
                 $cmd->setValue($cmd_info->getID()); // cmmande info liée
             }
@@ -510,7 +496,6 @@ class BSBLAN extends eqLogic
 
             $dataType = $obj_detail["$item_id"]['dataType'];
             $cmd->setConfiguration('internal_type', $dataType);
-            $cmd->setConfiguration('dataTypename', $obj_detail["$item_id"]['dataTypename']);
 
             $cmd->setType('action');
             switch (true) {
@@ -532,21 +517,11 @@ class BSBLAN extends eqLogic
                     break;
             }
             $cmd->save();
+            $return = __('Commande action créée', __FILE__) . ' ' . $item_id;
+            log::add(__CLASS__, 'debug', __FUNCTION__ . ' ' . $return);
+            return 'OK ' . $return;
         }
     }
-
-    public function preInsert()
-    {
-        if ($this->getConfiguration('type', '') == "") {
-            $this->setConfiguration('type', 'BSBLAN');
-        }
-    }
-
-    public function preRemove()
-    {
-        return true;
-    }
-
 
     public function postInsert()
     {
@@ -586,18 +561,18 @@ class BSBLAN extends eqLogic
 
     public static function cron()
     {
-        $cron_BSBLAN = cron::byClassAndFunction('BSBLAN', 'update');
-        if (!is_object($cron_BSBLAN)) {
-            log::add('BSBLAN', 'info', 'Lancement de cron');
+        $cron = cron::byClassAndFunction(__CLASS__, 'update');
+        if (!is_object($cron)) {
+            log::add(__CLASS__, 'info', __('Lancement de cron', __FILE__));
             BSBLAN::update();
         }
     }
 
     public static function update()
     {
-        log::add('BSBLAN', 'info', 'Lancement de update');
-        foreach (eqLogic::byTypeAndSearchConfiguration('BSBLAN', '"type":"BSBLAN"') as $eqLogic) {
-            log::add('BSBLAN', 'info', 'Appel BSBLAN_Update BSBLAN : ' . $eqLogic->getName());
+        log::add(__CLASS__, 'info', __('Lancement de', __FILE__) . ' ' . __FUNCTION__);
+        foreach (eqLogic::byType(__CLASS__) as $eqLogic) {
+            log::add(__CLASS__, 'info', __('Appel ', __FILE__) . ' BSBLAN_Update appareil : ' . $eqLogic->getName());
             if ($eqLogic->getIsEnable()) {
                 BSBLAN::BSBLAN_Update($eqLogic);
             }
@@ -606,8 +581,11 @@ class BSBLAN extends eqLogic
 
     public static function BSBLAN_Update($_eqLogic, $_context = 'cron')
     {
-        log::add('BSBLAN', 'info', 'BSBLAN_Update Appareil : ' . $_eqLogic->getName() . ' Contexte ' . $_context);
+        log::add(__CLASS__, 'info', __FUNCTION__ . ' ' . __('Equipement', __FILE__) . ' : ' . $_eqLogic->getName() . ' ' . __('Contexte', __FILE__) . ' ' . $_context);
 
+        $max_errors = $_eqLogic->getConfiguration('max_errors', 3);
+        $retry = is_numeric($max_errors) ? max(1, (int)$max_errors) : 3;
+        $error_number = 0;
         foreach ($_eqLogic->getCmd() as $cmd) {
             if (is_numeric($cmd->getLogicalId()) && $cmd->getConfiguration('isCollected') == 1) {
                 $run = false;
@@ -647,51 +625,94 @@ class BSBLAN extends eqLogic
                 }
 
                 if ($run == true) {
-                    if ($_eqLogic->refresh_info_cmd($cmd) == true) {
+                    if ($_eqLogic->BSBLAN_read_parameter($cmd) == true) {
+                        $error_number = 0;
                         $_eqLogic_refresh_cmd = $_eqLogic->getCmd(null, 'updatetime');
                         $_eqLogic->checkAndUpdateCmd($_eqLogic_refresh_cmd, date("d/m/Y H:i", (time())));
-                    }
+                    } else
+                        $error_number++;
+                }
+                if ($error_number >= $retry) {
+                    log::add(__CLASS__, 'error', sprintf(__('Récupération des données de %1$s abandonnée car trop d\'erreurs (%2$s)', __FILE__), $_eqLogic->getName(), $error_number));
+                    break;
                 }
             }
         }
     }
 
-    function refresh_info_cmd($_cmd)
+    function BSBLAN_read_parameter($_cmd)
     {
-        log::add('BSBLAN', 'debug', 'Read parameter ' . $_cmd->getLogicalId() . ' ' . $_cmd->getName());
+        log::add(__CLASS__, 'debug', sprintf(__('Lecture du paramètre %s %s', __FILE__), $_cmd->getLogicalId(), $_cmd->getName()));
         $item_id = $_cmd->getLogicalId();
         $obj_detail = $this->BSBLAN_api('JQ=' . $item_id);
-        if (isset($obj_detail["$item_id"]['name'])) {
-            log::add('BSBLAN', 'info', 'Read de ' . $item_id . ' ' . $_cmd->getName() . ' --> ' . $obj_detail["$item_id"]['value'] . ' ' . $obj_detail["$item_id"]['desc']);
-            $value = $obj_detail["$item_id"]['value'];
-            if (isset($obj_detail["$item_id"]['desc'])) {
-                if ($obj_detail["$item_id"]['desc'] != '') {
-                    $value = $obj_detail["$item_id"]['desc'];
-                }
-            }
-            $eqLogic = $_cmd->getEqlogic();
-            $eqLogic->checkAndUpdateCmd($_cmd, $value);
-            return true;
-        } else {
+        if ($obj_detail == false) {
             return false;
         }
+
+        $eqLogic = $_cmd->getEqLogic();
+        $IgnoredErrors = $eqLogic->getConfiguration("IgnoredErrors", '260');
+
+        $exceptions = [];
+        if (trim($IgnoredErrors) !== '') {
+            $exceptions = array_map('intval', explode(';', $IgnoredErrors));
+        }
+
+        $BSBLAN_error = isset($obj_detail["$item_id"]["error"]) ? $obj_detail["$item_id"]["error"] : 0;
+
+        if ($BSBLAN_error != 0 && !in_array($BSBLAN_error, $exceptions)) {
+            log::add(__CLASS__, 'error', sprintf(__('Erreur de lecture du paramètre %1$s %2$s - code erreur BSBLAN %3$s', __FILE__), $item_id, $_cmd->getName(), $BSBLAN_error));
+            return false;
+        } else {
+            if (isset($obj_detail["$item_id"]['name'])) {
+                $value = $obj_detail["$item_id"]['value'];
+                // dans le cas d une liste d'options, on prend le libellé de l'option
+                if (isset($obj_detail["$item_id"]['desc'])) {
+                    if ($obj_detail["$item_id"]['desc'] != '') {
+                        $value = $obj_detail["$item_id"]['desc'];
+                    }
+                }
+                log::add(__CLASS__, 'info', sprintf(__('Valeur de %1$s %2$s --> %3$s', __FILE__), $item_id, $_cmd->getName(), $value));
+                $eqLogic->checkAndUpdateCmd($_cmd, $value);
+                return true;
+            } else {
+                log::add(__CLASS__, 'error', sprintf(__('Erreur de lecture du paramètre %1$s %2$s : entrée \'name\' non définie', __FILE__), $item_id, $_cmd->getName()));
+                return false;
+            }
+        }
+    }
+
+    public static function getUniqueCmdName($eqLogicId, $name)
+    {
+        // teste si le nom de la commande est déjà attribué
+        // si oui, ajoute à la fin un numéro afin d'avoir un nom unique
+        if (!is_object(cmd::byEqLogicIdCmdName($eqLogicId, $name))) {
+            return $name;
+        }
+
+        $count = 1;
+        while (is_object(cmd::byEqLogicIdCmdName($eqLogicId, substr($name, 0, 100) . "..." . $count))) {
+            $count++;
+        }
+        $name = substr($name, 0, 100) . "..." . $count;
+        log::add(__CLASS__, 'info', sprintf(__('Renomme en %1$s', __FILE__), $name));
+        return $name;
     }
 }
-
 class BSBLANCmd extends cmd
 {
 
     public function execute($_options = null)
     {
+        $plugin='BSBLAN';
 
         $eqLogic = $this->getEqLogic();
         if (!is_object($eqLogic) || $eqLogic->getIsEnable() != 1) {
-            throw new \Exception(__('Equipement desactivé impossible d\éxecuter la commande : ' . $this->getHumanName(), __FILE__));
+            throw new \Exception(__('Equipement désactivé impossible d\'éxecuter la commande :', __FILE__) . $this->getHumanName());
         }
 
         // Refresh toutes les infos
         if ($this->getLogicalId() == 'refresh') {
-            log::add('BSBLAN', 'info', __('execute ', __FILE__) . '  refresh');
+            log::add($plugin, 'info', __('execute ', __FILE__) . '  refresh');
             BSBLAN::BSBLAN_Update($eqLogic, 'refresh');
             return true;
         }
@@ -711,8 +732,9 @@ class BSBLANCmd extends cmd
                     $value = $_options['message'];
                     break;
                 default:
-                    log::add('BSBLAN', 'info', 'Type d action non défini : ' . $this->getSubType());
-                    die;
+                    $return = __('Type d\'action non défini', __FILE__) . ' : ' . $this->getSubType();
+                    log::add($plugin, 'info', $return);
+                    throw new \Exception($return);
                     break;
             }
             $data_string = '';
@@ -747,14 +769,13 @@ class BSBLANCmd extends cmd
 
                 $url = 'JS';
             }
-            log::add('BSBLAN', 'info', __('execute ', __FILE__) . '  url ' . $url . ' json ' . $data_string);
+            log::add($plugin, 'info', __('execute ', __FILE__) . '  url ' . $url . ' json ' . $data_string);
             $obj = $eqLogic->BSBLAN_api($url, $data_string);
-
-
+            if ($obj == false) {
+                return false;
+            }
             return true;
         }
-
-        //}
 
         // Commande refresh
         if (substr($this->getLogicalId(), 0, 2) == 'R_') {
@@ -762,22 +783,19 @@ class BSBLANCmd extends cmd
 
             $cmd = cmd::byEqLogicIdAndLogicalId($eqLogic->getId(), $internalid);
             if (!is_object($cmd)) {
-                log::add('BSBLAN', 'debug', 'Commande non trouvée ' . $internalid);
+                log::add($plugin, 'debug', __('Commande non trouvée', __FILE__) . ' ' . $internalid);
                 return false;
             }
-            return $eqLogic->refresh_info_cmd($cmd);
+            return $eqLogic->BSBLAN_read_parameter($cmd);
         }
     }
-
 
     public function dontRemoveCmd()
     {
         $eqLogic = $this->getEqLogic();
         if (is_object($eqLogic)) {
-            if ($eqLogic->getConfiguration('type', '') == 'BSBLAN') {
-                if ($this->getLogicalId() == 'updatetime' || $this->getLogicalId() == 'refresh') {
-                    return true;
-                }
+            if ($this->getLogicalId() == 'updatetime' || $this->getLogicalId() == 'refresh') {
+                return true;
             }
             return false;
         }
